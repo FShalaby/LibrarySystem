@@ -24,8 +24,8 @@ public abstract class User {
     //write on the CSV
     //===============================
  
-    public void writeUserCsv(String name, String email, String password, String id) {
-        String csvFilePath = "/Users/fouadshalaby/Desktop/user.csv"; // Path to your CSV file
+    public synchronized void writeUserCsv(String name, String email, String password, String id) {
+        String csvFilePath = "/Users/fouadshalaby/git/LibrarySystem/sandbox/user.csv"; // Path to your CSV file
         try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath))) {
             String lastLine = null;
             String line;

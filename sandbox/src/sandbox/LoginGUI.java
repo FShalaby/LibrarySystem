@@ -43,12 +43,12 @@ public class LoginGUI extends JFrame implements ActionListener {
         add(panel);
         
         // Read user credentials from CSV file
-        users = readUserCredentials("/Users/fouadshalaby/Desktop/user.csv"); // Modified CSV file path
+        users = readUserCredentials("/Users/fouadshalaby/git/LibrarySystem/sandbox/user.csv"); // Modified CSV file path
         
         setVisible(true);
     }
     
-    private Map<String, String> readUserCredentials(String filename) {
+    private synchronized Map<String, String> readUserCredentials(String filename) {
         Map<String, String> userMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
