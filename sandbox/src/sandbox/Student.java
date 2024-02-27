@@ -1,8 +1,10 @@
 package sandbox;
 
+import java.util.ArrayList;
+
 public class Student extends User 
 {
-	
+	ArrayList courses = new ArrayList<Course>();
 	public Student(String name, String email, String password, String type) {
 		this.name = name;
         this.email = email;

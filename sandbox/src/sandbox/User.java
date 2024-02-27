@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public abstract class User {
@@ -13,6 +14,13 @@ public abstract class User {
     public String type;
     protected String pw;
     protected boolean vertification;
+    protected int limit = 0;
+    protected int overdue=0;
+    protected ArrayList rented = new ArrayList<Item>();
+    
+    
+    
+   
     //Generate random ID()
     protected static String generateRandomID() {
         // Generate a random UUID

@@ -1,34 +1,30 @@
 package sandbox;
 import java.util.HashMap;
 import java.util.ArrayList;
-public class PhysicalItem extends LibraryItem
+public class PhysicalItem extends Item
 {
-	ArrayList<String>added = new ArrayList<String>();
-	public PhysicalItem(String name, String type, Double price, Boolean rentStatus)
-	{
-		this.name=name;
-		this.type=type;
-		this.price=price;
-		this.rentStatus=rentStatus;
-		 if (!added.contains(name)) {
-	            this.copies = 20;
-	            added.add(name);
-	        }
-	}
-	public PhysicalItem()
-	{
-		
-	}
+	ArrayList<String>inv = new ArrayList<String>();
 	
-	@Override
-	public int getCopies() {
-		// TODO Auto-generated method stub
-		return this.copies;
-	}
-	@Override
-	public int setCopies(int copies) {
-		return this.copies=copies;
-	}
-
-
+	  public PhysicalItem(String id, String name, String location, ItemType type, double price, ItemStatus status, ItemPermission permission) {
+	        this.id = id;
+	        this.name = name;
+	        this.location = location;
+	        this.type = type;
+	        this.price = price;
+	        this.status = status;
+	        this.permission = permission;
+	        this.copies = 20;
+	        
+	        boolean found = false;
+	        for (String itemName : inv) {
+	            if (name.equals(itemName)) 
+	            {
+	                found = true;
+	                break;
+	            }
+	        }
+	        if (!found) {
+	            inv.add(name);
+	        }
+	    }
 }
