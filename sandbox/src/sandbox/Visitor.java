@@ -10,7 +10,7 @@ public class Visitor extends User{
 		this.pw=password;
 		this.type = type;
 		this.id = this.generateRandomID();
-		this.vertification = true;
+		this.isVerified = true;
 		 writeUserCsv(this.name, this.email, this.pw, this.id);
 	}
 	
