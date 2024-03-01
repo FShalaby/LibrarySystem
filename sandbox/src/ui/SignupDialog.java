@@ -98,16 +98,6 @@ public class SignupDialog extends JFrame {
     }
     selectedUserType = selectedUserType.toLowerCase();
 
-<<<<<<< Upstream, based on origin/Fouad
-    // Create user based on selected user type
-    User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
-    if (!newUser.isVerified) {
-      JOptionPane.showMessageDialog(
-          this, "Verification Required. Please wait while we check your information.");
-      return; // Stop signup process
-    }
-
-=======
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
     
     //Create a new user based on selected type
@@ -119,7 +109,6 @@ public class SignupDialog extends JFrame {
     }
 
     db.getAllUsers();
->>>>>>> 9d84c87 SignUp Bug Fixes
     // return to login dialog
     showLoginDialog();
   }
