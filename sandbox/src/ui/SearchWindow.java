@@ -4,18 +4,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-/** The main entrypoint for the GUI. */
-public class MainWindow extends JFrame {
+public class SearchWindow extends JFrame {
   // constants
   private static final int WIN_WIDTH = 1024;
   private static final int WIN_HEIGHT = 640;
 
-  // attributes
-  private final SearchWindow searchWindow = new SearchWindow();
-
-  /** Creates the MainWindow. */
-  private MainWindow() {
-    super("Library System");
+  /** Creates the SearchWindow. */
+  public SearchWindow() {
+    super("Search Library");
 
     // init window
     this.setLayout(new BorderLayout());
@@ -32,26 +28,12 @@ public class MainWindow extends JFrame {
     this.add(createCenterPanel(), BorderLayout.CENTER);
   }
 
-  public static void main(String[] args) {
-    SwingUtilities.invokeLater(() -> new MainWindow().showLoginDialog());
-  }
-
-  /** Creates and displays a login dialog. */
-  public void showLoginDialog() {
-    // login dialog always disposes itself
-    LoginDialog loginDialog = new LoginDialog(this);
-    loginDialog.setVisible(true);
+  private void backAction() {
     this.setVisible(false);
-    this.searchWindow.setVisible(false);
-  }
-
-  /** Displays a search window. */
-  public void showSearchWindow() {
-    this.searchWindow.setVisible(true);
   }
 
   /**
-   * Creates the MainWindow's navigation/top panel.
+   * Creates the SearchWindows's navigation/top panel.
    *
    * @return JPanel
    */
@@ -67,18 +49,19 @@ public class MainWindow extends JFrame {
     rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
     // left panel content
-    JLabel greeter = new JLabel("Welcome, Name"); // TODO: Add user's name
-    greeter.setBorder(new EmptyBorder(5, 0, 5, 0));
-    leftPanel.add(greeter);
+    JButton backButton = new JButton("Back");
+    backButton.addActionListener(e -> backAction());
+    leftPanel.add(backButton);
 
     // right panel content
-    JButton searchButton = new JButton("Search Library");
-    searchButton.addActionListener(e -> showSearchWindow());
-    rightPanel.add(searchButton);
+    JTextField searchField = new JTextField(32);
+    searchField.setRequestFocusEnabled(true);
+    rightPanel.add(searchField);
 
-    JButton logoutButton = new JButton("Logout");
-    logoutButton.addActionListener(e -> showLoginDialog());
-    rightPanel.add(logoutButton);
+    JButton searchButton = new JButton("Search");
+    searchButton.addActionListener(
+        e -> System.out.println("Search Query: " + searchField.getText()));
+    rightPanel.add(searchButton);
 
     // add panels
     topPanel.add(leftPanel);
@@ -87,7 +70,7 @@ public class MainWindow extends JFrame {
   }
 
   /**
-   * Creates the MainWindow's main/centered panel.
+   * Creates the SearchWindows's main/centered panel.
    *
    * @return JPanel
    */
@@ -97,7 +80,7 @@ public class MainWindow extends JFrame {
     centerPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
     // add content
-    JLabel label = new JLabel("Main Page");
+    JLabel label = new JLabel("Search Page");
 
     // add panel
     centerPanel.add(label);

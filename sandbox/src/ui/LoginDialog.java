@@ -1,11 +1,9 @@
 package ui;
 
-import sandbox.Database;
-
-import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.Map;
+import javax.swing.*;
+import sandbox.Database;
 
 /** Class that renders a login dialog. Disposes of itself on close. */
 public class LoginDialog extends JFrame {

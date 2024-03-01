@@ -1,9 +1,8 @@
 package ui;
 
-import sandbox.Database;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
