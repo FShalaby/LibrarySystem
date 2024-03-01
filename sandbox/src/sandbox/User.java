@@ -9,7 +9,7 @@ public abstract class User {
   public String id;
   public String type;
   protected String pw;
-  protected boolean isVerified;
+  public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
   protected ArrayList rented = new ArrayList<Item>();
