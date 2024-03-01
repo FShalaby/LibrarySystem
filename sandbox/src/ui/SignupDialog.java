@@ -7,6 +7,10 @@ import sandbox.UserFactory;
 import java.awt.*;
 import javax.swing.*;
 
+import sandbox.Database;
+import sandbox.User;
+import sandbox.UserFactory;
+
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
   // constants
@@ -87,12 +91,14 @@ public class SignupDialog extends JFrame {
     String email = emailField.getText();
     String pass = new String(passField.getPassword());
     String selectedUserType = (String) userTypeComboBox.getSelectedItem();
+    Database db = Database.getInstance();
     if (selectedUserType == null) {
       JOptionPane.showMessageDialog(this, "Please choose a login type");
       return;
     }
     selectedUserType = selectedUserType.toLowerCase();
 
+<<<<<<< Upstream, based on origin/Fouad
     // Create user based on selected user type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
     if (!newUser.isVerified) {
@@ -101,6 +107,19 @@ public class SignupDialog extends JFrame {
       return; // Stop signup process
     }
 
+=======
+    System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
+    
+    //Create a new user based on selected type
+    User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
+    if (!newUser.isVerified) {
+      JOptionPane.showMessageDialog(
+          this, "Verification Required. Please wait while we check your information.");
+      return; // Stop signup process
+    }
+
+    db.getAllUsers();
+>>>>>>> 9d84c87 SignUp Bug Fixes
     // return to login dialog
     showLoginDialog();
   }
