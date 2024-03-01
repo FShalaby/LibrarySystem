@@ -14,8 +14,8 @@ public class Student extends User
         writeUserCsv(this.name, this.email, this.pw, this.id);
 	}
 
-//	this.vertification = LibraryManager.verify(this);
-//    if (this.vertification) {
+//	this.isVerified = LibraryManager.verify(this);
+//    if (this.isVerified) {
 //        writeUserCsv(this.name, this.email, this.pw, this.id);
 //    } else {
 //        System.out.println("Student verification failed. User not added to CSV.");
