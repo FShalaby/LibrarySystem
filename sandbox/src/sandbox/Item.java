@@ -12,6 +12,7 @@ public abstract class Item
 	public double price;
 	public ItemStatus status;
 	public ItemPermission permission;
+	public String category;
 	public int copies;
 	public LocalDate dueDate;
 	public boolean isLost = false;
