@@ -1,5 +1,8 @@
 package ui;
 
+import sandbox.Database;
+import sandbox.User;
+import sandbox.UserFactory;
 
 import java.awt.*;
 import javax.swing.*;
@@ -90,18 +93,13 @@ public class SignupDialog extends JFrame {
     }
     selectedUserType = selectedUserType.toLowerCase();
 
-    System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
-
     // Create user based on selected user type
-    //    User newUser = UserFactory.createUser(name, email, password, selectedUserType);
-    //    if (!newUser.isVerified) {
-    //      JOptionPane.showMessageDialog(
-    //          SignupGUI.this, "Verification Required. Please wait while we check your
-    // information.");
-    //      return; // Stop signup process
-    //    }
-
-    //    users = readUserCredentials("/Users/fouadshalaby/Desktop/user.csv");
+    User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
+    if (!newUser.isVerified) {
+      JOptionPane.showMessageDialog(
+          this, "Verification Required. Please wait while we check your information.");
+      return; // Stop signup process
+    }
 
     // return to login dialog
     showLoginDialog();

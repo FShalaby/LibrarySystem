@@ -16,7 +16,7 @@ public class SearchWindow extends JFrame {
     // init window
     this.setLayout(new BorderLayout());
     this.setSize(WIN_WIDTH, WIN_HEIGHT);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
     // center window
     Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
