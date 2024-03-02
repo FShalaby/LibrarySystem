@@ -28,7 +28,7 @@ public class NewsletterProxy implements Newsletter{
 	}
 
 	@Override
-	public void cancelSubscription(User user, Newsletter Newsletter) {
+	public void cancelSubscription(User user, Newsletter newsletter) {
 		// TODO Auto-generated method stub
 		if (user.subscriptions.containsKey(newsletter) && user.subscriptions.get(newsletter)) {
             // Update the subscription status to false
