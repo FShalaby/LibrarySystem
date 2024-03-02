@@ -5,7 +5,7 @@ public class PhysicalItem extends Item
 {
 	ArrayList<String>inv = new ArrayList<String>();
 	
-	  public PhysicalItem(String id, String name, String location, ItemType type, double price, ItemStatus status, ItemPermission permission, String category) {
+	  public PhysicalItem(String name, String location, ItemType type, double price, ItemStatus status, ItemPermission permission, String category) {
 	        this.id = this.generateUniqueID();
 	        this.name = name;
 	        this.location = location;

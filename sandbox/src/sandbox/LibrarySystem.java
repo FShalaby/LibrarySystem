@@ -12,7 +12,7 @@ public  class LibrarySystem
 	public static HashMap<String,Integer> inventory = new HashMap<String,Integer>();
 	public static HashMap<String,String> genre = new HashMap<String,String>();
     public static HashMap<String, Item> itemMap = new HashMap<>();
-    public List<Item> recommendations = new ArrayList<Item>();
+//    public List<Item> recommendations = new ArrayList<Item>();
 	public double penalty = 0.5;
 	public Payment payment;
 	
