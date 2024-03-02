@@ -4,8 +4,8 @@ public class LibraryManager {
 	
 	public static boolean verify(User user)
 	{
-		user.vertification=true;
-		return user.vertification;
+		user.isVerified =true;
+		return user.isVerified;
 		
 	}
 }
