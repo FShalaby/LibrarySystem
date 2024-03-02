@@ -91,7 +91,7 @@ public class SearchWindow extends JFrame {
                 JOptionPane.showMessageDialog(null, "Item not found.");
             }
         });
-
+    rightPanel.add(searchButton);
     // add panels
     topPanel.add(leftPanel);
     topPanel.add(rightPanel);
