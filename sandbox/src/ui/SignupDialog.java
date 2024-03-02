@@ -100,7 +100,7 @@ public class SignupDialog extends JFrame {
 
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
     
-<<<<<<< Upstream, based on origin/Fouad
+
     //Create a new user based on selected type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
     if (!newUser.isVerified) {
