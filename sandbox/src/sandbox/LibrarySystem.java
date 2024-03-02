@@ -12,7 +12,7 @@ public  class LibrarySystem
 	public static HashMap<String,Integer> inventory = new HashMap<String,Integer>();
 	public static HashMap<String,String> genre = new HashMap<String,String>();
     public static HashMap<String, Item> itemMap = new HashMap<>();
-    public List<Item> recommendations = new ArrayList<Item>();
+//    public List<Item> recommendations = new ArrayList<Item>();
 	public double penalty = 0.5;
 	public Payment payment;
 	
@@ -59,11 +59,9 @@ public  class LibrarySystem
 	        String lowercaseItemName = item.name.toLowerCase(); // Convert item name to lowercase
 	        if (lowercaseItemName.equals(lowercaseName)) 
 	        {
-	        	recommendations = getRecommendations(item.category);
 	            return item; // Return the item if found
 	        }
 	    }
-	    
 	    
 	    return null;
 	}
@@ -74,15 +72,15 @@ public  class LibrarySystem
 		    return categoryStrategy.search(category);
 	}
 		
-	public List<Item> displayRecommendations(List<Item> recommendations)
-	{
-		if (recommendations.isEmpty()) {
-	       return null;
-	    } else {
-	 
-	       return recommendations; // return the list
-	    }
-	}	
+//	public List<Item> displayRecommendations(List<Item> recommendations)
+//	{
+//		if (recommendations.isEmpty()) {
+//	       return null;
+//	    } else {
+//	 
+//	       return recommendations; // return the list
+//	    }
+//	}	
 	
 	
 	public String BuyItem(Item item, Payment payment, User user)
@@ -121,5 +119,13 @@ public  class LibrarySystem
 
         return itemMap;
     }
+	public String toString() {
+	    return "Name: " + item.name + "\n"
+	            + "Category: " + item.category + "\n"
+	            + "Location: " + item.location + "\n"
+	            + "Permission: " + item.permission + "\n"
+	            + "Price: " + item.price + "\n"
+	            + "Inventory: " + item.copies + "\n";
+	}
 }
 
