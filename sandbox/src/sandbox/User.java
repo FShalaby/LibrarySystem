@@ -1,6 +1,7 @@
 package sandbox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public abstract class User {
@@ -13,6 +14,7 @@ public abstract class User {
   protected int limit = 0;
   protected int overdue = 0;
   protected ArrayList rented = new ArrayList<Item>();
+  public HashMap<Newsletter, Boolean> subscriptions;
 
   // Generate random ID()
   protected static String generateRandomID() {
