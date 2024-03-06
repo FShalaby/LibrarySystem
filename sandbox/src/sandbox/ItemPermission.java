@@ -4,7 +4,7 @@ public enum ItemPermission {
 	Disabled(0),
 	Rentable(1),
 	Purchasable(2),
-	Both(3);
+	RentableAndPurchasable(3);
 
   private final int value;
 
