@@ -99,7 +99,7 @@ public class SignupDialog extends JFrame {
     selectedUserType = selectedUserType.toLowerCase();
 
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
-    
+
     //Create a new user based on selected type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
     if (!newUser.isVerified) {
