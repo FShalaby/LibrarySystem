@@ -117,6 +117,53 @@ public class Database {
 
   // update methods
 
+  public void borrowItem() {
+    // TODO: implement
+  }
+
+  public void returnItem() {
+    // TODO: implement
+  }
+
+  /**
+   * Updates a given item's permissions.
+   *
+   * @param itemID The item's ID.
+   * @param permission The item's new permission
+   */
+  public void updateItemPermission(String itemID, ItemPermission permission) {
+    String filename = getItemsCsvFilename();
+    File tempFile = new File(getItemsCsvFilename() + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // update permissions
+        if (Objects.equals(parts[0], itemID)) {
+          parts[6] = String.valueOf(permission.getValue());
+          line = String.join(",", parts);
+        }
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("UPDATE_ITEM_PERMISSION: Rename success? " + renamed);
+  }
+
   // delete methods
 
   /**
