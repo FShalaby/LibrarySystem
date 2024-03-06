@@ -130,6 +130,7 @@ public class SearchWindow extends JFrame {
       JOptionPane.showMessageDialog(this, "Item Found: " + foundItem.name);
     } else {
       // Item not found, display a message
+      table.setModel(new ItemTableModel(db.getAllItems()));
       JOptionPane.showMessageDialog(this, "Item not found.");
     }
   }
