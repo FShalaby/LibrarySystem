@@ -1,12 +1,13 @@
 package sandbox;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public  class LibrarySystem 
 {
+	private final Database db = Database.getInstance();
 	public Item item;
 	public User user;
 	public static HashMap<String,Integer> inventory = new HashMap<String,Integer>();
@@ -54,7 +55,9 @@ public  class LibrarySystem
 	public Item searchItem(String name)
 	{
 		String lowercaseName = name.toLowerCase(); // Convert search query to lowercase
-	    
+		List<Item> items = db.getAllItems();
+
+		// first check inventory
 	    for (String itemName : inventory.keySet()) {
 	        String lowercaseItemName = item.name.toLowerCase(); // Convert item name to lowercase
 	        if (lowercaseItemName.equals(lowercaseName)) 
@@ -62,8 +65,22 @@ public  class LibrarySystem
 	            return item; // Return the item if found
 	        }
 	    }
-	    
-	    return null;
+
+		Item item = null;
+		// check db if inventory does not have item
+		for (Item i : items) {
+			// prioritize exact match
+			if (Objects.equals(lowercaseName, i.name.toLowerCase())) {
+				return i;
+			}
+
+			// if not exact match, find first item whose name is close enough
+			if (item == null && i.name.toLowerCase().contains(lowercaseName)) {
+				item = i;
+			}
+		}
+
+	    return item;
 	}
 	
 	public List<Item> getRecommendations(String category)
