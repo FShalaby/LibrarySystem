@@ -14,7 +14,7 @@ public class MainWindow extends JFrame {
   private final SearchWindow searchWindow = new SearchWindow();
 
   /** Creates the MainWindow. */
-  private MainWindow() {
+  protected MainWindow() {
     super("Library System");
 
     // init window

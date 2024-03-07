@@ -84,10 +84,35 @@ public class LoginDialog extends JFrame {
 
     // TODO: check user is verified
     //        if () {}
+    
+    String userType = Database.getUserType(email);
+    if (userType == null) {
+        JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
+        return;
+    }
+    switch (userType.toLowerCase()) {
+    case "student":
+        new StudentWindow().setVisible(true);
+        break;
+    case "faculty":
+        new FacultyWindow().setVisible(true);
+        break;
+    case "non-faculty":
+        new NonFacultyWindow().setVisible(true);
+        break;
+    case "visitor":
+        new VisitorWindow().setVisible(true);
+        break;
+    default:
+        JOptionPane.showMessageDialog(this, "Unknown user type");
+        break;
+}
 
     JOptionPane.showMessageDialog(this, "Login successful!");
-    this.mainWindow.setVisible(true);
     this.dispose();
+//    JOptionPane.showMessageDialog(this, "Login successful!");
+//    this.mainWindow.setVisible(true);
+//    this.dispose();
   }
 
   /** Creates and displays a signup dialog. */

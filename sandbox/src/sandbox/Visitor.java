@@ -11,7 +11,7 @@ public class Visitor extends User{
 		this.type = type;
 		this.id = this.generateRandomID();
 		this.isVerified = true;
-		 writeUserCsv(this.name, this.email, this.pw, this.id);
+		 writeUserCsv(this.name, this.email, this.pw, this.id,this.type);
 	}
 	
 
