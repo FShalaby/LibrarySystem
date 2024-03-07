@@ -47,14 +47,14 @@ public class Database {
   }
 
   /** Inserts a new row into the users.csv table */
-  public void insertUser(String name, String id, String email, String pass) {
+  public void insertUser(String name, String id, String email, String pass, String type) {
     String filename = getUsersCsvFilename();
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
       // Append user data to the CSV file
       writer.newLine();
       writer.write(
-          String.format("%s,%s,%s,%s", name, id, email, pass)); // Assuming ID is the second column
+          String.format("%s,%s,%s,%s","%s",name, id, email, pass,type)); // Assuming ID is the second column
       System.out.println("User data has been written to the CSV file.");
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -102,7 +102,7 @@ public class Database {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] parts = line.split(",");
-        if (parts.length >= 4) { // Ensure at least four columns exist
+        if (parts.length >= 5) { // Ensure at least four columns exist
           String email = parts[2].trim(); // Email is in the third column
           String password = parts[3].trim(); // Password is in the fourth column
           userMap.put(email, password);
@@ -114,6 +114,27 @@ public class Database {
 
     return userMap;
   }
+  
+  // Get User type
+  public static String getUserType(String email) {
+	    String filename = getUsersCsvFilename();
+
+	    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            String[] parts = line.split(",");
+	            if (parts.length >= 5 && parts[2].trim().equalsIgnoreCase(email)) {
+	                // Assuming type is in the fifth column
+	                return parts[4].trim();
+	            }
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    // Return null if user not found or error occurs
+	    return null;
+	}
 
   // update methods
 
@@ -208,7 +229,7 @@ public class Database {
    *
    * @return filename
    */
-  private String getItemsCsvFilename() {
+  private static String getItemsCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/items.csv";
   }
@@ -218,7 +239,7 @@ public class Database {
    *
    * @return filename
    */
-  private String getUsersCsvFilename() {
+  private static String getUsersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/users.csv";
   }

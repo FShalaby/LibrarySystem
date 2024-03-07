@@ -11,7 +11,7 @@ public class Student extends User
         this.pw = password;
         this.type = type;
         this.id = this.generateRandomID();
-        writeUserCsv(this.name, this.email, this.pw, this.id);
+        writeUserCsv(this.name, this.email, this.pw, this.id,this.type);
 	}
 
 //	this.isVerified = LibraryManager.verify(this);
