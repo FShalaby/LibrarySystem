@@ -123,7 +123,7 @@ public  class LibrarySystem
 		    return "Sorry, item " + item.name + " cannot be purchased"; 
 	}
 		
-	public ArrayList displayRentedBooks(User user)
+	public static ArrayList displayRentedBooks(User user)
 	{
 		return user.rented;
 	}
