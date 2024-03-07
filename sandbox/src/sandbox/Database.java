@@ -2,10 +2,7 @@ package sandbox;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Database {
   private static Database dbInstance;
@@ -21,6 +18,33 @@ public class Database {
   }
 
   // create methods
+  public void insertItem(Item item) {
+    String filename = getItemsCsvFilename();
+
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.newLine();
+      writer.write(
+          String.format(
+              "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%s,%b",
+              item.id,
+              item.name,
+              item.location,
+              item.type.getValue(),
+              item.price,
+              item.status.getValue(),
+              item.permission.getValue(),
+              item.category,
+              item.copies,
+              item.dueDate,
+              item.isLost));
+      writer.close();
+
+      System.out.println("Item data has been written to the CSV file.");
+    } catch (IOException ex) {
+      System.err.println(ex.getMessage());
+    }
+  }
 
   /** Inserts a new row into the users.csv table */
   public void insertUser(String name, String id, String email, String pass) {
@@ -56,42 +80,7 @@ public class Database {
           continue;
         }
 
-        String[] parts = line.split(",");
-        Item item = new Item();
-        item.id = parts[0];
-        item.name = parts[1];
-        item.location = parts[2];
-        item.type = ItemType.Unknown;
-        for (ItemType i : ItemType.values()) {
-          if (i.getValue() == Integer.parseInt(parts[3])) {
-            item.type = i;
-            break;
-          }
-        }
-
-        item.price = Double.parseDouble(parts[4]);
-        item.status = ItemStatus.Unknown;
-        for (ItemStatus i : ItemStatus.values()) {
-          if (i.getValue() == Integer.parseInt(parts[5])) {
-            item.status = i;
-            break;
-          }
-        }
-
-        item.permission = ItemPermission.Disabled;
-        for (ItemPermission i : ItemPermission.values()) {
-          if (i.getValue() == Integer.parseInt(parts[6])) {
-            item.permission = i;
-            break;
-          }
-        }
-
-        item.category = parts[7];
-        item.copies = Integer.parseInt(parts[8]);
-        item.dueDate = LocalDate.parse(parts[9]);
-        item.isLost = Boolean.parseBoolean(parts[10]);
-
-        items.add(item);
+        items.add(itemFromCsvLine(line));
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -128,7 +117,89 @@ public class Database {
 
   // update methods
 
+  public void borrowItem() {
+    // TODO: implement
+  }
+
+  public void returnItem() {
+    // TODO: implement
+  }
+
+  /**
+   * Updates a given item's permissions.
+   *
+   * @param itemID The item's ID.
+   * @param permission The item's new permission
+   */
+  public void updateItemPermission(String itemID, ItemPermission permission) {
+    String filename = getItemsCsvFilename();
+    File tempFile = new File(getItemsCsvFilename() + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // update permissions
+        if (Objects.equals(parts[0], itemID)) {
+          parts[6] = String.valueOf(permission.getValue());
+          line = String.join(",", parts);
+        }
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("UPDATE_ITEM_PERMISSION: Rename success? " + renamed);
+  }
+
   // delete methods
+
+  /**
+   * Removes a given item from the items.csv file.
+   *
+   * @param itemID The ID of the item to delete.
+   */
+  public void deleteItem(String itemID) {
+    String filename = getItemsCsvFilename();
+    File tempFile = new File(getItemsCsvFilename() + "." + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // skip given item
+        if (Objects.equals(parts[0], itemID)) continue;
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("DELETE_ITEM: Rename success? " + renamed);
+  }
 
   // helper methods
 
@@ -150,5 +221,44 @@ public class Database {
   private String getUsersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/users.csv";
+  }
+
+  private Item itemFromCsvLine(String line) {
+    String[] parts = line.split(",");
+    Item item = new Item();
+    item.id = parts[0];
+    item.name = parts[1];
+    item.location = parts[2];
+    item.type = ItemType.Unknown;
+    for (ItemType i : ItemType.values()) {
+      if (i.getValue() == Integer.parseInt(parts[3])) {
+        item.type = i;
+        break;
+      }
+    }
+
+    item.price = Double.parseDouble(parts[4]);
+    item.status = ItemStatus.Unknown;
+    for (ItemStatus i : ItemStatus.values()) {
+      if (i.getValue() == Integer.parseInt(parts[5])) {
+        item.status = i;
+        break;
+      }
+    }
+
+    item.permission = ItemPermission.Disabled;
+    for (ItemPermission i : ItemPermission.values()) {
+      if (i.getValue() == Integer.parseInt(parts[6])) {
+        item.permission = i;
+        break;
+      }
+    }
+
+    item.category = parts[7];
+    item.copies = Integer.parseInt(parts[8]);
+    item.dueDate = LocalDate.parse(parts[9]);
+    item.isLost = Boolean.parseBoolean(parts[10]);
+
+    return item;
   }
 }
