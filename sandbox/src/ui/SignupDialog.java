@@ -1,11 +1,10 @@
 package ui;
 
+import java.awt.*;
+import javax.swing.*;
 import sandbox.Database;
 import sandbox.User;
 import sandbox.UserFactory;
-
-import java.awt.*;
-import javax.swing.*;
 
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
@@ -87,16 +86,23 @@ public class SignupDialog extends JFrame {
     String email = emailField.getText();
     String pass = new String(passField.getPassword());
     String selectedUserType = (String) userTypeComboBox.getSelectedItem();
-    Database db = Database.getInstance();
     if (selectedUserType == null) {
       JOptionPane.showMessageDialog(this, "Please choose a login type");
       return;
     }
     selectedUserType = selectedUserType.toLowerCase();
 
+    Database db = Database.getInstance();
+
+    // prevent duplicate signup
+    if (db.getUserByEmail(email) != null) {
+      JOptionPane.showMessageDialog(this, "User with email '" + email + "' already exists");
+      return;
+    }
+
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
 
-    //Create a new user based on selected type
+    // Create a new user based on selected type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
     newUser.writeUserCsv();
     if (!newUser.isVerified) {
