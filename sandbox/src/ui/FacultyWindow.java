@@ -6,16 +6,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class FacultyWindow extends MainWindow {
+import sandbox.User;
 
-    public FacultyWindow() {
+public class FacultyWindow extends MainWindow {
+	public static User user;
+    public FacultyWindow(User user) {
         super();
+        this.user=user;
         setTitle("Faculty Main Window");
         // Customize the window for faculty user
-        customizeForFaculty();
+        customizeForFaculty(this.user);
     }
 
-    private void customizeForFaculty() {
+    private void customizeForFaculty(User user) {
         // Customize components as needed for faculty user
         JLabel userTypeLabel = new JLabel("Faculty");
         userTypeLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -23,7 +26,7 @@ public class FacultyWindow extends MainWindow {
         centerPanel.add(userTypeLabel);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FacultyWindow().showLoginDialog());
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> new FacultyWindow(user).showLoginDialog());
+//    }
 }

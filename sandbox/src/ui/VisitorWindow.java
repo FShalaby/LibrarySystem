@@ -6,16 +6,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class VisitorWindow extends MainWindow {
+import sandbox.User;
 
-    public VisitorWindow() {
+public class VisitorWindow extends MainWindow {
+	public static User user;
+    public VisitorWindow(User user) {
         super();
+        this.user=user;
         setTitle("Non-Faculty Main Window");
         // Customize the window for faculty user
-        customizeForVisitor();
+        customizeForVisitor(this.user);
     }
 
-    private void customizeForVisitor() {
+    private void customizeForVisitor(User user) {
         // Customize components as needed for faculty user
         JLabel userTypeLabel = new JLabel("Non-Faculty");
         userTypeLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -23,9 +26,9 @@ public class VisitorWindow extends MainWindow {
         centerPanel.add(userTypeLabel);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VisitorWindow().showLoginDialog());
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> new VisitorWindow(user).showLoginDialog());
+//    }
 }
 
 
