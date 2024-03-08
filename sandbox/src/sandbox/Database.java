@@ -52,9 +52,9 @@ public class Database {
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
       // Append user data to the CSV file
-      writer.newLine();
       writer.write(
-          String.format("%s,%s,%s,%s","%s",name, id, email, pass,type)); // Assuming ID is the second column
+          String.format("%s,%s,%s,%s,%s",name, id, email, pass,type)); // Assuming ID is the second column
+      writer.newLine();
       System.out.println("User data has been written to the CSV file.");
     } catch (IOException ex) {
       ex.printStackTrace();

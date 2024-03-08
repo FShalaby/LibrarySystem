@@ -13,7 +13,7 @@ public abstract class User {
   public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
-  protected ArrayList rented = new ArrayList<Item>();
+  public ArrayList rented = new ArrayList<Item>();
   public HashMap<Newsletter, Boolean> subscriptions;
 
   // Generate random ID()

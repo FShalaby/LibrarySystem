@@ -16,7 +16,7 @@ public class LoginDialog extends JFrame {
   // attributes
   private final MainWindow mainWindow;
   private final Database db = Database.getInstance();
-  private final JTextField emailField = new JTextField(32);
+  private final static JTextField emailField = new JTextField(32);
   private final JPasswordField passField = new JPasswordField(32);
 
   /**
@@ -64,7 +64,7 @@ public class LoginDialog extends JFrame {
     spacer.setSize(20, 1);
 
     FormPanel formPanel = new FormPanel();
-    formPanel.addRow(emailLabel, emailField);
+    formPanel.addRow(emailLabel, getEmailField());
     formPanel.addRow(passLabel, passField);
     formPanel.addVSpace(12);
     formPanel.addActions(closeButton, spacer, signupButton, loginButton);
@@ -74,7 +74,7 @@ public class LoginDialog extends JFrame {
 
   /** Primary action associated with clicking the Login button. */
   private void loginAction() {
-    String email = emailField.getText();
+    String email = getEmailField().getText();
     String pass = new String(passField.getPassword());
 
     // Check if email and password match records in the CSV file
@@ -98,16 +98,16 @@ public class LoginDialog extends JFrame {
     }
     switch (userType.toLowerCase()) {
     case "student":
-        new StudentWindow().setVisible(true);
+        new StudentWindow(user).setVisible(true);
         break;
     case "faculty":
-        new FacultyWindow().setVisible(true);
+        new FacultyWindow(user).setVisible(true);
         break;
     case "non-faculty":
-        new NonFacultyWindow().setVisible(true);
+        new NonFacultyWindow(user).setVisible(true);
         break;
     case "visitor":
-        new VisitorWindow().setVisible(true);
+        new VisitorWindow(user).setVisible(true);
         break;
     default:
         JOptionPane.showMessageDialog(this, "Unknown user type");
@@ -128,4 +128,8 @@ public class LoginDialog extends JFrame {
     signupDialog.setVisible(true);
     this.setVisible(false);
   }
+
+public static JTextField getEmailField() {
+	return emailField;
+}
 }
