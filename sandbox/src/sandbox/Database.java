@@ -90,11 +90,33 @@ public class Database {
   }
 
   /**
+   * Reads the users.csv file and returns a list containing all stored users.
+   *
+   * @return Map<String, String>
+   */
+  public List<User> getAllUsers() {
+    String filename = getUsersCsvFilename();
+
+    ArrayList<User> users = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("name,")) continue;
+        users.add(userFromCsvLine(line));
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return users;
+  }
+
+  /**
    * Reads the users.csv file and returns a hashmap containing the data of all users.
    *
    * @return Map<String, String>
    */
-  public Map<String, String> getAllUsers() {
+  public Map<String, String> getAllUsersMap() {
     String filename = getUsersCsvFilename();
 
     Map<String, String> userMap = new HashMap<>();
@@ -135,6 +157,26 @@ public class Database {
 	    // Return null if user not found or error occurs
 	    return null;
 	}
+
+  public User getUserByEmail(String email) {
+    String filename = getUsersCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("name,")) continue;
+
+        User user = userFromCsvLine(line);
+        if (Objects.equals(user.email, email)) {
+          return user;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
 
   // update methods
 
@@ -281,5 +323,10 @@ public class Database {
     item.isLost = Boolean.parseBoolean(parts[10]);
 
     return item;
+  }
+
+  private User userFromCsvLine(String line) {
+    String[] parts = line.split(",");
+    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4]);
   }
 }
