@@ -50,10 +50,17 @@ public class Database {
   public void insertUser(String name, String id, String email, String pass, String type) {
     String filename = getUsersCsvFilename();
 
+    // prevent duplicate emails
+    if (getUserByEmail(email) != null) {
+      System.err.println("User with email '" + email + "' already exists");
+      return;
+    }
+
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
       // Append user data to the CSV file
       writer.write(
-          String.format("%s,%s,%s,%s,%s",name, id, email, pass,type)); // Assuming ID is the second column
+          String.format(
+              "%s,%s,%s,%s,%s", name, id, email, pass, type)); // Assuming ID is the second column
       writer.newLine();
       System.out.println("User data has been written to the CSV file.");
     } catch (IOException ex) {
@@ -136,28 +143,13 @@ public class Database {
 
     return userMap;
   }
-  
-  // Get User type
-  public static String getUserType(String email) {
-	    String filename = getUsersCsvFilename();
 
-	    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-	        String line;
-	        while ((line = reader.readLine()) != null) {
-	            String[] parts = line.split(",");
-	            if (parts.length >= 5 && parts[2].trim().equalsIgnoreCase(email)) {
-	                // Assuming type is in the fifth column
-	                return parts[4].trim();
-	            }
-	        }
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-
-	    // Return null if user not found or error occurs
-	    return null;
-	}
-
+  /**
+   * Reads the users.csv file and returns a User with the given email address.
+   *
+   * @param email The user's email
+   * @return The user (if found), or <code>null</code>
+   */
   public User getUserByEmail(String email) {
     String filename = getUsersCsvFilename();
 

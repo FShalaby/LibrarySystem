@@ -91,12 +91,11 @@ public class LoginDialog extends JFrame {
     // TODO: check user is verified
     //        if () {}
     
-    String userType = Database.getUserType(email);
-    if (userType == null) {
+    if (user.type == null) {
         JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
         return;
     }
-    switch (userType.toLowerCase()) {
+    switch (user.type.toLowerCase()) {
     case "student":
         new StudentWindow(user).setVisible(true);
         break;
