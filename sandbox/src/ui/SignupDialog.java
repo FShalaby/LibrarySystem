@@ -98,6 +98,7 @@ public class SignupDialog extends JFrame {
 
     //Create a new user based on selected type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
+    newUser.writeUserCsv();
     if (!newUser.isVerified) {
       JOptionPane.showMessageDialog(
           this, "Verification Required. Please wait while we check your information.");

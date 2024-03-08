@@ -14,7 +14,7 @@ public class MainWindow extends JFrame {
 
   // attributes
   private final SearchWindow searchWindow = new SearchWindow();
-  private final User currentUser = CurrentUser.getUserInstance();
+  protected final User currentUser = CurrentUser.getUserInstance();
 
   /** Creates the MainWindow. */
   protected MainWindow() {

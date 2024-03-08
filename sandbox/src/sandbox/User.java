@@ -27,7 +27,7 @@ public abstract class User {
   // write on the CSV
   // ===============================
 
-  public synchronized void writeUserCsv(String name, String email, String password, String id, String type) {
-    Database.getInstance().insertUser(name, id, email, password,type);
+  public synchronized void writeUserCsv() {
+    Database.getInstance().insertUser(this.name, this.id, this.email, this.pw, this.type);
   }
 }
