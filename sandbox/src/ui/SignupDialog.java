@@ -7,10 +7,6 @@ import sandbox.UserFactory;
 import java.awt.*;
 import javax.swing.*;
 
-import sandbox.Database;
-import sandbox.User;
-import sandbox.UserFactory;
-
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
   // constants
@@ -108,7 +104,7 @@ public class SignupDialog extends JFrame {
       return; // Stop signup process
     }
 
-    db.getAllUsers();
+    db.getAllUsersMap();
     // return to login dialog
     showLoginDialog();
   }

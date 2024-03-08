@@ -3,7 +3,9 @@ package ui;
 import java.awt.*;
 import java.util.Map;
 import javax.swing.*;
+import sandbox.CurrentUser;
 import sandbox.Database;
+import sandbox.User;
 
 /** Class that renders a login dialog. Disposes of itself on close. */
 public class LoginDialog extends JFrame {
@@ -74,13 +76,17 @@ public class LoginDialog extends JFrame {
   private void loginAction() {
     String email = emailField.getText();
     String pass = new String(passField.getPassword());
-    Map<String, String> users = db.getAllUsers();
 
     // Check if email and password match records in the CSV file
+    Map<String, String> users = db.getAllUsersMap();
     if (!users.containsKey(email) || !users.get(email).equals(pass)) {
       JOptionPane.showMessageDialog(this, "Invalid email or password");
       return;
     }
+
+    // set current user
+    User user = db.getUserByEmail(email);
+    CurrentUser.setUserInstance(user);
 
     // TODO: check user is verified
     //        if () {}
