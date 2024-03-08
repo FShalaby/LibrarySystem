@@ -73,6 +73,10 @@ public class SearchWindow extends JFrame {
     JButton searchButton = new JButton("Search");
     searchButton.addActionListener(e -> searchAction());
     rightPanel.add(searchButton);
+    
+    JButton clearButton = new JButton("Clear");
+    clearButton.addActionListener(e -> clearSearch());
+    rightPanel.add(clearButton);
 
     // add panels
     topPanel.add(leftPanel);
@@ -104,6 +108,13 @@ public class SearchWindow extends JFrame {
     centerPanel.add(scrollPane);
     return centerPanel;
   }
+  
+  private void clearSearch() {
+	    // Clear the search field
+	    searchField.setText("");
+	    // Reset the table with all items
+	    table.setModel(new ItemTableModel(db.getAllItems()));
+	}
 
   private void searchAction() {
     // Get the search query from the text field
