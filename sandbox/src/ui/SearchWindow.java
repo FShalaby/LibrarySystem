@@ -1,13 +1,25 @@
 package ui;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableModel;
+
+import sandbox.Database;
+import sandbox.Item;
+import sandbox.LibrarySystem;
 
 public class SearchWindow extends JFrame {
   // constants
   private static final int WIN_WIDTH = 1024;
   private static final int WIN_HEIGHT = 640;
+  private final Database db = Database.getInstance();
+  private final LibrarySystem librarySystem = new LibrarySystem();
+  private final JTextField searchField = new JTextField(32);
+  private JTable table;
 
   /** Creates the SearchWindow. */
   public SearchWindow() {
@@ -38,6 +50,7 @@ public class SearchWindow extends JFrame {
    * @return JPanel
    */
   private JPanel createTopPanel() {
+
     JPanel topPanel = new JPanel();
     topPanel.setLayout(new GridLayout(1, 2));
     topPanel.setBorder(new EmptyBorder(4, 6, 4, 6));
@@ -54,18 +67,21 @@ public class SearchWindow extends JFrame {
     leftPanel.add(backButton);
 
     // right panel content
-    JTextField searchField = new JTextField(32);
-    searchField.setRequestFocusEnabled(true);
-    rightPanel.add(searchField);
+    this.searchField.setRequestFocusEnabled(true);
+    rightPanel.add(this.searchField);
 
     JButton searchButton = new JButton("Search");
-    searchButton.addActionListener(
-        e -> System.out.println("Search Query: " + searchField.getText()));
+    searchButton.addActionListener(e -> searchAction());
     rightPanel.add(searchButton);
+    
+    JButton clearButton = new JButton("Clear");
+    clearButton.addActionListener(e -> clearSearch());
+    rightPanel.add(clearButton);
 
     // add panels
     topPanel.add(leftPanel);
     topPanel.add(rightPanel);
+
     return topPanel;
   }
 
@@ -80,10 +96,53 @@ public class SearchWindow extends JFrame {
     centerPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
     // add content
-    JLabel label = new JLabel("Search Page");
+    List<Item> items = db.getAllItems();
+    this.table = new JTable(new ItemTableModel(items));
+    this.table.setFillsViewportHeight(true);
+    this.table.setPreferredScrollableViewportSize(
+        new Dimension(WIN_WIDTH - 36, WIN_HEIGHT - 128)); // padding_x: 18px
+
+    JScrollPane scrollPane = new JScrollPane(table);
 
     // add panel
-    centerPanel.add(label);
+    centerPanel.add(scrollPane);
     return centerPanel;
+  }
+  
+  private void clearSearch() {
+	    // Clear the search field
+	    searchField.setText("");
+	    // Reset the table with all items
+	    table.setModel(new ItemTableModel(db.getAllItems()));
+	}
+
+  private void searchAction() {
+    // Get the search query from the text field
+    String query = searchField.getText();
+
+    // reset table on empty search
+    if (Objects.equals(query, "")) {
+      table.setModel(new ItemTableModel(db.getAllItems()));
+      return;
+    }
+
+    // Call the searchItem method in LibrarySystem
+    Item foundItem = librarySystem.searchItem(query);
+    // Handle the foundItem as needed
+    if (foundItem != null) {
+      // Item found, do something
+      List<Item> recommendations = librarySystem.getRecommendations(foundItem.category);
+
+      List<Item> results = new ArrayList<>();
+      results.add(foundItem);
+      results.addAll(recommendations);
+      table.setModel(new ItemTableModel(results));
+
+      JOptionPane.showMessageDialog(this, "Item Found: " + foundItem.name);
+    } else {
+      // Item not found, display a message
+      table.setModel(new ItemTableModel(db.getAllItems()));
+      JOptionPane.showMessageDialog(this, "Item not found.");
+    }
   }
 }

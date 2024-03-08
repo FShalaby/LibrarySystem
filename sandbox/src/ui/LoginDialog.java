@@ -3,7 +3,9 @@ package ui;
 import java.awt.*;
 import java.util.Map;
 import javax.swing.*;
+import sandbox.CurrentUser;
 import sandbox.Database;
+import sandbox.User;
 
 /** Class that renders a login dialog. Disposes of itself on close. */
 public class LoginDialog extends JFrame {
@@ -14,7 +16,7 @@ public class LoginDialog extends JFrame {
   // attributes
   private final MainWindow mainWindow;
   private final Database db = Database.getInstance();
-  private final JTextField emailField = new JTextField(32);
+  private final static JTextField emailField = new JTextField(32);
   private final JPasswordField passField = new JPasswordField(32);
 
   /**
@@ -62,7 +64,7 @@ public class LoginDialog extends JFrame {
     spacer.setSize(20, 1);
 
     FormPanel formPanel = new FormPanel();
-    formPanel.addRow(emailLabel, emailField);
+    formPanel.addRow(emailLabel, getEmailField());
     formPanel.addRow(passLabel, passField);
     formPanel.addVSpace(12);
     formPanel.addActions(closeButton, spacer, signupButton, loginButton);
@@ -72,22 +74,51 @@ public class LoginDialog extends JFrame {
 
   /** Primary action associated with clicking the Login button. */
   private void loginAction() {
-    String email = emailField.getText();
+    String email = getEmailField().getText();
     String pass = new String(passField.getPassword());
-    Map<String, String> users = db.getAllUsers();
 
     // Check if email and password match records in the CSV file
+    Map<String, String> users = db.getAllUsersMap();
     if (!users.containsKey(email) || !users.get(email).equals(pass)) {
       JOptionPane.showMessageDialog(this, "Invalid email or password");
       return;
     }
 
+    // set current user
+    User user = db.getUserByEmail(email);
+    CurrentUser.setUserInstance(user);
+
     // TODO: check user is verified
     //        if () {}
+    
+    String userType = Database.getUserType(email);
+    if (userType == null) {
+        JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
+        return;
+    }
+    switch (userType.toLowerCase()) {
+    case "student":
+        new StudentWindow(user).setVisible(true);
+        break;
+    case "faculty":
+        new FacultyWindow(user).setVisible(true);
+        break;
+    case "non-faculty":
+        new NonFacultyWindow(user).setVisible(true);
+        break;
+    case "visitor":
+        new VisitorWindow(user).setVisible(true);
+        break;
+    default:
+        JOptionPane.showMessageDialog(this, "Unknown user type");
+        break;
+}
 
     JOptionPane.showMessageDialog(this, "Login successful!");
-    this.mainWindow.setVisible(true);
     this.dispose();
+//    JOptionPane.showMessageDialog(this, "Login successful!");
+//    this.mainWindow.setVisible(true);
+//    this.dispose();
   }
 
   /** Creates and displays a signup dialog. */
@@ -97,4 +128,8 @@ public class LoginDialog extends JFrame {
     signupDialog.setVisible(true);
     this.setVisible(false);
   }
+
+public static JTextField getEmailField() {
+	return emailField;
+}
 }

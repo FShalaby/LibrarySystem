@@ -3,6 +3,8 @@ package ui;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import sandbox.CurrentUser;
+import sandbox.User;
 
 /** The main entrypoint for the GUI. */
 public class MainWindow extends JFrame {
@@ -12,9 +14,10 @@ public class MainWindow extends JFrame {
 
   // attributes
   private final SearchWindow searchWindow = new SearchWindow();
+  protected final User currentUser = CurrentUser.getUserInstance();
 
   /** Creates the MainWindow. */
-  private MainWindow() {
+  protected MainWindow() {
     super("Library System");
 
     // init window
@@ -67,7 +70,7 @@ public class MainWindow extends JFrame {
     rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
     // left panel content
-    JLabel greeter = new JLabel("Welcome, Name"); // TODO: Add user's name
+    JLabel greeter = new JLabel("Welcome, " + (currentUser != null ? currentUser.name : "UNKNOWN"));
     greeter.setBorder(new EmptyBorder(5, 0, 5, 0));
     leftPanel.add(greeter);
 

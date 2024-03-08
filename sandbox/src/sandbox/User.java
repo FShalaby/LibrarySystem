@@ -1,6 +1,7 @@
 package sandbox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public abstract class User {
@@ -12,7 +13,8 @@ public abstract class User {
   public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
-  protected ArrayList rented = new ArrayList<Item>();
+  public ArrayList rented = new ArrayList<Item>();
+  public HashMap<Newsletter, Boolean> subscriptions;
 
   // Generate random ID()
   protected static String generateRandomID() {
@@ -25,7 +27,7 @@ public abstract class User {
   // write on the CSV
   // ===============================
 
-  public synchronized void writeUserCsv(String name, String email, String password, String id) {
-    Database.getInstance().insertUser(name, id, email, password);
+  public synchronized void writeUserCsv() {
+    Database.getInstance().insertUser(this.name, this.id, this.email, this.pw, this.type);
   }
 }
