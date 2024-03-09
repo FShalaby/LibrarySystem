@@ -24,7 +24,9 @@ public class Database {
    *
    * @param item The item to add
    */
-  public void insertItem(Item item) {
+
+  public static void insertItem(Item item) {
+
     String filename = getItemsCsvFilename();
 
     try {
@@ -322,7 +324,7 @@ public class Database {
    * @param itemID The item's ID.
    * @param permission The item's new permission
    */
-  public void updateItemPermission(String itemID, ItemPermission permission) {
+  public static void updateItemPermission(String itemID, ItemPermission permission) {
     String filename = getItemsCsvFilename();
     File tempFile = new File(getItemsCsvFilename() + System.currentTimeMillis());
 
@@ -362,7 +364,7 @@ public class Database {
    *
    * @param itemID The ID of the item to delete.
    */
-  public void deleteItem(String itemID) {
+  public static void deleteItem(String itemID) {
     String filename = getItemsCsvFilename();
     File tempFile = new File(filename + "." + System.currentTimeMillis());
 

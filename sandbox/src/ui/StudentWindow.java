@@ -25,7 +25,7 @@ public class StudentWindow extends MainWindow {
   private void customizeForStudent() {
     JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
     centerPanel.setLayout(new BorderLayout());
-
+    
     JLabel rentedBooksLabel =
         new JLabel(currentUser.rentedItems.isEmpty() ? "No Books Rented" : "Rented Books");
     rentedBooksLabel.setFont(new Font(rentedBooksLabel.getFont().getFontName(), Font.BOLD, 18));
