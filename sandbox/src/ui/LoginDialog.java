@@ -97,7 +97,7 @@ public class LoginDialog extends JFrame {
     }
     switch (user.type.toLowerCase()) {
     case "student":
-        new StudentWindow(user).setVisible(true);
+        new StudentWindow().setVisible(true);
         break;
     case "faculty":
         new FacultyWindow(user).setVisible(true);
