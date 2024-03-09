@@ -18,12 +18,19 @@ public class Database {
   }
 
   // create methods
+
+  /**
+   * Inserts a new row into items.csv.
+   *
+   * @param item The item to add
+   */
+
   public static void insertItem(Item item) {
+
     String filename = getItemsCsvFilename();
 
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
-      writer.newLine();
       writer.write(
           String.format(
               "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%s,%b",
@@ -38,11 +45,33 @@ public class Database {
               item.copies,
               item.dueDate,
               item.isLost));
+      writer.newLine();
       writer.close();
 
       System.out.println("Item data has been written to the CSV file.");
     } catch (IOException ex) {
       System.err.println(ex.getMessage());
+    }
+  }
+
+  /**
+   * Inserts a new row into rentals.csv, due date is automatically calculated (now + 1 month).
+   *
+   * @param itemID The ID of the rented item
+   * @param userID The ID of the renter
+   */
+  public void insertRental(String itemID, String userID) {
+    String filename = getRentalsCsvFilename();
+
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.write(String.format("%s,%s,%s", itemID, userID, LocalDate.now().plusMonths(1)));
+      writer.newLine();
+      writer.close();
+
+      System.out.println("Rental data has been written to the CSV file.");
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
     }
   }
 
@@ -97,6 +126,97 @@ public class Database {
   }
 
   /**
+   * Reads the items.csv file and returns an Item with the given ID.
+   *
+   * @param id The item's ID
+   * @return The item (if found), or <code>null</code>
+   */
+  public Item getItem(String id) {
+    String filename = getItemsCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("id,")) continue;
+
+        Item item = itemFromCsvLine(line);
+        if (Objects.equals(item.id, id)) {
+          return item;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  /**
+   * Reads the rentals.csv file and returns a list containing all rentals.
+   *
+   * @return A list of maps containing the user's id as the key, and the rented item (<code>Item
+   *     </code>) as the value.
+   */
+  public List<Map<String, Item>> getAllRentals() {
+    String filename = getRentalsCsvFilename();
+
+    ArrayList<Map<String, Item>> rentals = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("item_id,")) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        Item rented = getItem(parts[0]);
+        rented.dueDate = LocalDate.parse(parts[2]);
+
+        Map<String, Item> rental = new HashMap<>();
+        rental.put(parts[1], rented);
+        rentals.add(rental);
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return rentals;
+  }
+
+  /**
+   * Reads the rentals.csv file and returns a list containing items rented by a given user.
+   *
+   * @param id The renter's ID
+   * @return A list of the user's rented items (<code>Item</code>)
+   */
+  public List<Item> getUserRentals(String id) {
+    String filename = getRentalsCsvFilename();
+
+    ArrayList<Item> rentals = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("item_id,")) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        if (!Objects.equals(parts[1], id)) continue;
+
+        Item rented = getItem(parts[0]);
+        rented.dueDate = LocalDate.parse(parts[2]);
+        rentals.add(rented);
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return rentals;
+  }
+
+  /**
    * Reads the users.csv file and returns a list containing all stored users.
    *
    * @return Map<String, String>
@@ -145,6 +265,32 @@ public class Database {
   }
 
   /**
+   * Reads the users.csv file and returns a User with the given ID.
+   *
+   * @param id The user's ID
+   * @return The user (if found), or <code>null</code>
+   */
+  public User getUser(String id) {
+    String filename = getUsersCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("name,")) continue;
+
+        User user = userFromCsvLine(line);
+        if (Objects.equals(user.id, id)) {
+          return user;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  /**
    * Reads the users.csv file and returns a User with the given email address.
    *
    * @param email The user's email
@@ -171,14 +317,6 @@ public class Database {
   }
 
   // update methods
-
-  public void borrowItem() {
-    // TODO: implement
-  }
-
-  public void returnItem() {
-    // TODO: implement
-  }
 
   /**
    * Updates a given item's permissions.
@@ -228,7 +366,7 @@ public class Database {
    */
   public static void deleteItem(String itemID) {
     String filename = getItemsCsvFilename();
-    File tempFile = new File(getItemsCsvFilename() + "." + System.currentTimeMillis());
+    File tempFile = new File(filename + "." + System.currentTimeMillis());
 
     // read from original file, write to temp
     try {
@@ -256,6 +394,44 @@ public class Database {
     System.out.println("DELETE_ITEM: Rename success? " + renamed);
   }
 
+  /**
+   * Removes a given item from the rentals.csv file.
+   *
+   * @param itemID The ID of the item.
+   * @param userID The ID of the renter.
+   */
+  public void deleteRental(String itemID, String userID) {
+    String filename = getRentalsCsvFilename();
+    File tempFile = new File(filename + "." + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // skip given item
+        if (Objects.equals(parts[0], itemID) && Objects.equals(parts[1], userID)) {
+          continue;
+        }
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("DELETE_ITEM: Rename success? " + renamed);
+  }
+
   // helper methods
 
   /**
@@ -266,6 +442,16 @@ public class Database {
   private static String getItemsCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/items.csv";
+  }
+
+  /**
+   * Gets the absolute path of the rentals.csv file
+   *
+   * @return filename
+   */
+  private static String getRentalsCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/rentals.csv";
   }
 
   /**
@@ -319,6 +505,6 @@ public class Database {
 
   private User userFromCsvLine(String line) {
     String[] parts = line.split(",");
-    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4]);
+    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4], parts[1]);
   }
 }

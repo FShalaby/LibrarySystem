@@ -10,8 +10,8 @@ public  class LibrarySystem
 	private final Database db = Database.getInstance();
 	public Item item;
 	public User user;
-	public static HashMap<String,Integer> inventory = new HashMap<String,Integer>();
-	public static HashMap<String,String> genre = new HashMap<String,String>();
+	public static HashMap<String,Integer> inventory = new HashMap<>();
+	public static HashMap<String,String> genre = new HashMap<>();
     public static HashMap<String, Item> itemMap = new HashMap<>();
 //    public List<Item> recommendations = new ArrayList<Item>();
 	public double penalty = 0.5;
@@ -23,7 +23,7 @@ public  class LibrarySystem
 		if(user.limit<10 && item.permission.equals(ItemPermission.Rentable) && item.copies>0 && user.overdue<3)
 		{
 				    item.status = ItemStatus.Rented;
-		     	    user.rented.add(item);
+		     	    user.rentedItems.add(item);
 		            inventory.put(item.name, item.copies - 1);
 		           
 		            
@@ -123,9 +123,9 @@ public  class LibrarySystem
 		    return "Sorry, item " + item.name + " cannot be purchased"; 
 	}
 		
-	public static ArrayList displayRentedBooks(User user)
+	public static List<Item> displayRentedBooks(User user)
 	{
-		return user.rented;
+		return user.rentedItems;
 	}
 	
 	public HashMap<String, Integer> getInventory() {

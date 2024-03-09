@@ -2,6 +2,7 @@ package sandbox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class User {
@@ -13,7 +14,7 @@ public abstract class User {
   public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
-  public ArrayList<Item> rented = new ArrayList<Item>();
+  public List<Item> rentedItems = new ArrayList<>();
   public HashMap<Newsletter, Boolean> subscriptions;
 
   // Generate random ID()
