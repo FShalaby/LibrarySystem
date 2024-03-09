@@ -97,6 +97,97 @@ public class Database {
   }
 
   /**
+   * Reads the items.csv file and returns an Item with the given ID.
+   *
+   * @param id The item's ID
+   * @return The item (if found), or <code>null</code>
+   */
+  public Item getItem(String id) {
+    String filename = getItemsCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("id,")) continue;
+
+        Item item = itemFromCsvLine(line);
+        if (Objects.equals(item.id, id)) {
+          return item;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  /**
+   * Reads the rentals.csv file and returns a list containing all rentals.
+   *
+   * @return A list of maps containing the user's id as the key, and the rented item (<code>Item
+   *     </code>) as the value.
+   */
+  public List<Map<String, Item>> getAllRentals() {
+    String filename = getRentalsCsvFilename();
+
+    ArrayList<Map<String, Item>> rentals = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("item_id,")) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        Item rented = getItem(parts[0]);
+        rented.dueDate = LocalDate.parse(parts[2]);
+
+        Map<String, Item> rental = new HashMap<>();
+        rental.put(parts[1], rented);
+        rentals.add(rental);
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return rentals;
+  }
+
+  /**
+   * Reads the rentals.csv file and returns a list containing items rented by a given user.
+   *
+   * @param id The renter's ID
+   * @return A list of the user's rented items (<code>Item</code>)
+   */
+  public List<Item> getUserRentals(String id) {
+    String filename = getRentalsCsvFilename();
+
+    ArrayList<Item> rentals = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("item_id,")) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        if (!Objects.equals(parts[1], id)) continue;
+
+        Item rented = getItem(parts[0]);
+        rented.dueDate = LocalDate.parse(parts[2]);
+        rentals.add(rented);
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return rentals;
+  }
+
+  /**
    * Reads the users.csv file and returns a list containing all stored users.
    *
    * @return Map<String, String>
@@ -142,6 +233,32 @@ public class Database {
     }
 
     return userMap;
+  }
+
+  /**
+   * Reads the users.csv file and returns a User with the given ID.
+   *
+   * @param id The user's ID
+   * @return The user (if found), or <code>null</code>
+   */
+  public User getUser(String id) {
+    String filename = getUsersCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("name,")) continue;
+
+        User user = userFromCsvLine(line);
+        if (Objects.equals(user.id, id)) {
+          return user;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
   }
 
   /**
@@ -269,6 +386,16 @@ public class Database {
   }
 
   /**
+   * Gets the absolute path of the rentals.csv file
+   *
+   * @return filename
+   */
+  private static String getRentalsCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/rentals.csv";
+  }
+
+  /**
    * Gets the absolute path of the users.csv file
    *
    * @return filename
@@ -319,6 +446,6 @@ public class Database {
 
   private User userFromCsvLine(String line) {
     String[] parts = line.split(",");
-    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4]);
+    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4], parts[1]);
   }
 }
