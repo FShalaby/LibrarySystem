@@ -18,12 +18,17 @@ public class Database {
   }
 
   // create methods
+
+  /**
+   * Inserts a new row into items.csv.
+   *
+   * @param item The item to add
+   */
   public void insertItem(Item item) {
     String filename = getItemsCsvFilename();
 
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
-      writer.newLine();
       writer.write(
           String.format(
               "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%s,%b",
@@ -38,11 +43,33 @@ public class Database {
               item.copies,
               item.dueDate,
               item.isLost));
+      writer.newLine();
       writer.close();
 
       System.out.println("Item data has been written to the CSV file.");
     } catch (IOException ex) {
       System.err.println(ex.getMessage());
+    }
+  }
+
+  /**
+   * Inserts a new row into rentals.csv, due date is automatically calculated (now + 1 month).
+   *
+   * @param itemID The ID of the rented item
+   * @param userID The ID of the renter
+   */
+  public void insertRental(String itemID, String userID) {
+    String filename = getRentalsCsvFilename();
+
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.write(String.format("%s,%s,%s", itemID, userID, LocalDate.now().plusMonths(1)));
+      writer.newLine();
+      writer.close();
+
+      System.out.println("Rental data has been written to the CSV file.");
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
     }
   }
 
@@ -289,14 +316,6 @@ public class Database {
 
   // update methods
 
-  public void borrowItem() {
-    // TODO: implement
-  }
-
-  public void returnItem() {
-    // TODO: implement
-  }
-
   /**
    * Updates a given item's permissions.
    *
@@ -345,7 +364,7 @@ public class Database {
    */
   public void deleteItem(String itemID) {
     String filename = getItemsCsvFilename();
-    File tempFile = new File(getItemsCsvFilename() + "." + System.currentTimeMillis());
+    File tempFile = new File(filename + "." + System.currentTimeMillis());
 
     // read from original file, write to temp
     try {
@@ -357,6 +376,44 @@ public class Database {
 
         // skip given item
         if (Objects.equals(parts[0], itemID)) continue;
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("DELETE_ITEM: Rename success? " + renamed);
+  }
+
+  /**
+   * Removes a given item from the rentals.csv file.
+   *
+   * @param itemID The ID of the item.
+   * @param userID The ID of the renter.
+   */
+  public void deleteRental(String itemID, String userID) {
+    String filename = getRentalsCsvFilename();
+    File tempFile = new File(filename + "." + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // skip given item
+        if (Objects.equals(parts[0], itemID) && Objects.equals(parts[1], userID)) {
+          continue;
+        }
 
         writer.write(line);
         writer.newLine();
