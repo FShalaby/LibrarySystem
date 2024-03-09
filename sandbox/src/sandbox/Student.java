@@ -13,6 +13,14 @@ public class Student extends User {
     this.id = generateRandomID();
   }
 
+  public Student(String name, String email, String password, String type, String id) {
+    this.name = name;
+    this.email = email;
+    this.pw = password;
+    this.type = type;
+    this.id = id;
+  }
+
   //	this.isVerified = LibraryManager.verify(this);
   //    if (this.isVerified) {
   //        writeUserCsv(this.name, this.email, this.pw, this.id);
