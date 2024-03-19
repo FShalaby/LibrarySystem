@@ -60,7 +60,7 @@ public class Database {
    * @param itemID The ID of the rented item
    * @param userID The ID of the renter
    */
-  public void insertRental(String itemID, String userID) {
+  public static void insertRental(String itemID, String userID) {
     String filename = getRentalsCsvFilename();
 
     try {
@@ -157,7 +157,7 @@ public class Database {
    * @return A list of maps containing the user's id as the key, and the rented item (<code>Item
    *     </code>) as the value.
    */
-  public List<Map<String, Item>> getAllRentals() {
+  public static List<Map<String, Item>> getAllRentals() {
     String filename = getRentalsCsvFilename();
 
     ArrayList<Map<String, Item>> rentals = new ArrayList<>();
@@ -198,7 +198,7 @@ public class Database {
       String line;
       while ((line = reader.readLine()) != null) {
         // ignore first line
-        if (line.startsWith("item_id,")) {
+        if (line.startsWith("item_id,") || line.isEmpty()) {
           continue;
         }
 

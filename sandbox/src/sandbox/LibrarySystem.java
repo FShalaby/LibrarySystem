@@ -45,6 +45,7 @@ public class LibrarySystem {
       if (currentDate.isAfter(dueDate.plusDays(15))) {
         item.isLost = true;
       }
+      Database.insertRental(item.id,user.id);
       return "Item " + item.name + " rented successfully.";
     }
 
