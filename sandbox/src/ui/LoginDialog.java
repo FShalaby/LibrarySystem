@@ -1,10 +1,12 @@
 package ui;
 
 import java.awt.*;
+import ui.ManagerView;
 import java.util.Map;
 import javax.swing.*;
 import sandbox.CurrentUser;
 import sandbox.Database;
+import sandbox.LibraryManager;
 import sandbox.User;
 
 /** Class that renders a login dialog. Disposes of itself on close. */
@@ -53,10 +55,14 @@ public class LoginDialog extends JFrame {
 
     JButton closeButton = new JButton("Close");
     closeButton.addActionListener(e -> System.exit(0));
+    
+//    JButton ManagerLogin = new JButton("Admin Login");
+//    ManagerLogin.addActionListener(e -> ManagerLogin());
 
     JButton signupButton = new JButton("Signup");
     signupButton.addActionListener(e -> showSignupDialog());
-
+    
+   
     JButton loginButton = new JButton("Login");
     loginButton.addActionListener(e -> loginAction());
 
@@ -71,6 +77,28 @@ public class LoginDialog extends JFrame {
 
     return formPanel;
   }
+//  private void ManagerLogin() {
+//	  String email = getEmailField().getText();
+//	    String pass = new String(passField.getPassword());
+//	    
+//	    
+//	    User manager = Database.getUserByEmail(email)
+//	   
+//	    if (!email.equals(Database.getUserByEmail(email)) || !pass.equals(Database.getPasswordByEmail(email))) {
+//	        JOptionPane.showMessageDialog(this, "Invalid email or password");
+//	        return;
+//	    }
+//
+//	    // Open ManagerView
+//	    ManagerView managerView = new ManagerView(manager);
+//	    managerView.setVisible(true);
+//	    this.dispose();
+//
+//	    JOptionPane.showMessageDialog(this, "Login successful!");
+////	    JOptionPane.showMessageDialog(this, "Login successful!");
+////	    this.mainWindow.setVisible(true);
+////	    this.dispose();
+//	  }
 
   /** Primary action associated with clicking the Login button. */
   private void loginAction() {
@@ -95,6 +123,8 @@ public class LoginDialog extends JFrame {
         JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
         return;
     }
+    if(user.isVerified)
+    {
     switch (user.type.toLowerCase()) {
     case "student":
         new StudentWindow().setVisible(true);
@@ -108,12 +138,21 @@ public class LoginDialog extends JFrame {
     case "visitor":
         new VisitorWindow(user).setVisible(true);
         break;
+    case "manager":
+    	new ManagerView((LibraryManager) user).setVisible(true);
+    	break;
     default:
         JOptionPane.showMessageDialog(this, "Unknown user type");
         break;
 }
+    }
+    else
+    {
+        JOptionPane.showMessageDialog(this, "Login Failed! Verificaition needed");
+        return;
 
-    JOptionPane.showMessageDialog(this, "Login successful!");
+    }
+
     this.dispose();
 //    JOptionPane.showMessageDialog(this, "Login successful!");
 //    this.mainWindow.setVisible(true);

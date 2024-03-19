@@ -31,6 +31,7 @@ public class Database {
 
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.newLine();
       writer.write(
           String.format(
               "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%s,%b",
@@ -45,7 +46,6 @@ public class Database {
               item.copies,
               item.dueDate,
               item.isLost));
-      writer.newLine();
       writer.close();
 
       System.out.println("Item data has been written to the CSV file.");
@@ -76,7 +76,7 @@ public class Database {
   }
 
   /** Inserts a new row into the users.csv table */
-  public void insertUser(String name, String id, String email, String pass, String type) {
+  public void insertUser(String name, String id, String email, String pass, String type, boolean verified) {
     String filename = getUsersCsvFilename();
 
     // prevent duplicate emails
@@ -89,7 +89,7 @@ public class Database {
       // Append user data to the CSV file
       writer.write(
           String.format(
-              "%s,%s,%s,%s,%s", name, id, email, pass, type)); // Assuming ID is the second column
+              "%s,%s,%s,%s,%s,%s", name, id, email, pass, type, verified)); // Assuming ID is the second column
       writer.newLine();
       System.out.println("User data has been written to the CSV file.");
     } catch (IOException ex) {
@@ -112,7 +112,7 @@ public class Database {
       String line;
       while ((line = reader.readLine()) != null) {
         // ignore first line
-        if (line.startsWith("id,")) {
+        if (line.startsWith("id,") || line.isEmpty()) {
           continue;
         }
 
@@ -131,7 +131,7 @@ public class Database {
    * @param id The item's ID
    * @return The item (if found), or <code>null</code>
    */
-  public Item getItem(String id) {
+  public static Item getItem(String id) {
     String filename = getItemsCsvFilename();
 
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -270,7 +270,7 @@ public class Database {
    * @param id The user's ID
    * @return The user (if found), or <code>null</code>
    */
-  public User getUser(String id) {
+  public static User getUser(String id) {
     String filename = getUsersCsvFilename();
 
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -324,7 +324,7 @@ public class Database {
    * @param email The user's email
    * @return The user (if found), or <code>null</code>
    */
-  public User getUserByEmail(String email) {
+  public static User getUserByEmail(String email) {
     String filename = getUsersCsvFilename();
 
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -343,9 +343,41 @@ public class Database {
 
     return null;
   }
+  
+  
 
   // update methods
+  
+  public static void updateUserVerification(String id, boolean verify)
+  {
+	  String filename = getUsersCsvFilename();
+	  File tempFile = new File(filename + System.currentTimeMillis());
+	  try {
+	      BufferedReader reader = new BufferedReader(new FileReader(filename));
+	      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+	      String line;
+	      while ((line = reader.readLine()) != null) {
+	        String[] parts = line.split(",");
 
+	        // update permissions
+	        if (Objects.equals(parts[1], id)) {
+	          parts[5] = String.valueOf(verify);
+	          line = String.join(",", parts);
+	        }
+
+	        writer.write(line);
+	        writer.newLine();
+	      }
+
+	      writer.close();
+	      reader.close();
+	    } catch (Exception e) {
+	      System.err.println(e.getMessage());
+	    }
+	  boolean renamed = tempFile.renameTo(new File(filename));
+	    System.out.println("UPDATE_User_Verfication: Rename success? " + renamed);
+  }
+  
   /**
    * Updates a given item's permissions.
    *
@@ -504,47 +536,46 @@ public class Database {
   }
 
 
-  private Item itemFromCsvLine(String line) {
+  private static Item itemFromCsvLine(String line) {
+	    String[] parts = line.split(",");
+	    Item item = new Item();
+	    item.id = parts[0];
+	    item.name = parts[1];
+	    item.location = parts[2];
+	    item.type = ItemType.Unknown;
+	    for (ItemType i : ItemType.values()) {
+	      if (i.getValue() == Integer.parseInt(parts[3])) {
+	        item.type = i;
+	        break;
+	      }
+	    }
+
+	    item.price = Double.parseDouble(parts[4]);
+	    item.status = ItemStatus.Unknown;
+	    for (ItemStatus i : ItemStatus.values()) {
+	      if (i.getValue() == Integer.parseInt(parts[5])) {
+	        item.status = i;
+	        break;
+	      }
+	    }
+
+	    item.permission = ItemPermission.Disabled;
+	    for (ItemPermission i : ItemPermission.values()) {
+	      if (i.getValue() == Integer.parseInt(parts[6])) {
+	        item.permission = i;
+	        break;
+	      }
+	    }
+
+	    item.category = parts[7];
+	    item.copies = Integer.parseInt(parts[8]);
+	    item.isLost = Boolean.parseBoolean(parts[9]);
+
+	    return item;
+	  }
+
+  private static User userFromCsvLine(String line) {
     String[] parts = line.split(",");
-    Item item = new Item();
-    item.id = parts[0];
-    item.name = parts[1];
-    item.location = parts[2];
-    item.type = ItemType.Unknown;
-    for (ItemType i : ItemType.values()) {
-      if (i.getValue() == Integer.parseInt(parts[3])) {
-        item.type = i;
-        break;
-      }
-    }
-
-    item.price = Double.parseDouble(parts[4]);
-    item.status = ItemStatus.Unknown;
-    for (ItemStatus i : ItemStatus.values()) {
-      if (i.getValue() == Integer.parseInt(parts[5])) {
-        item.status = i;
-        break;
-      }
-    }
-
-    item.permission = ItemPermission.Disabled;
-    for (ItemPermission i : ItemPermission.values()) {
-      if (i.getValue() == Integer.parseInt(parts[6])) {
-        item.permission = i;
-        break;
-      }
-    }
-
-    item.category = parts[7];
-    item.copies = Integer.parseInt(parts[8]);
-    item.dueDate = LocalDate.parse(parts[9]);
-    item.isLost = Boolean.parseBoolean(parts[10]);
-
-    return item;
-  }
-
-  private User userFromCsvLine(String line) {
-    String[] parts = line.split(",");
-    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4], parts[1]);
+    return UserFactory.createUser(parts[0], parts[2], parts[3], parts[4], parts[1], Boolean.parseBoolean(parts[5]));
   }
 }

@@ -2,66 +2,67 @@ package sandbox;
 
 import java.util.ArrayList;
 
-public class LibraryManager {
+public class LibraryManager extends User{
 	 private Command addItemCommand;
 	 private Command enableItemCommand;
 	 private Command disableItemCommand;
 	 private Command deleteItemCommand;
-	 private Command verifyUserCommand;
 
-	 public LibraryManager(Command addItemCommand, Command enableItemCommand, Command disableItemCommand, Command deleteItemCommand, Command verifyUserCommand) {
+	 public LibraryManager(String name, String email, String password, String userType) 
+	 	{
+		 	this.id = generateRandomID();
+		 	this.name = name;
+		 	this.pw=password;
+		 	this.type=userType;
+		 	this.isVerified = true;
+	    }
+	 public LibraryManager(String name, String email, String password, String type, String id) {
+		    this.name = name;
+		    this.email = email;
+		    this.pw = password;
+		    this.type = type;
+		    this.id = id;
+		    this.isVerified = true;
+		  }
+	 public void setAddItemCommand(Command addItemCommand) {
 	        this.addItemCommand = addItemCommand;
-	        this.enableItemCommand = enableItemCommand;
-	        this.disableItemCommand = disableItemCommand;
-	        this.deleteItemCommand = deleteItemCommand;
-	        this.verifyUserCommand = verifyUserCommand;
 	    }
 
-	 public void addItemToLibrary() {
+	    public void setEnableItemCommand(Command enableItemCommand) {
+	        this.enableItemCommand = enableItemCommand;
+	    }
+
+	    public void setDisableItemCommand(Command disableItemCommand) {
+	        this.disableItemCommand = disableItemCommand;
+	    }
+
+	    public void setDeleteItemCommand(Command deleteItemCommand) {
+	        this.deleteItemCommand = deleteItemCommand;
+	    }
+	    
+	    
+
+	 public void addItemToLibrary(Command command) {
 	        addItemCommand.execute(); // Executes the addItemCommand
 	    }
 
-	    public void enableItemForRenting() {
+	    public void enableItemForRenting(Command command) {
 	        enableItemCommand.execute(); // Executes the enableItemCommand
 	    }
 
-	    public void disableItemForRenting() {
+	    public void disableItemForRenting(Command command) {
 	        disableItemCommand.execute(); // Executes the disableItemCommand
 	    }
-	    public void deleteItem()
+	    public void deleteItem(Command command)
 	    {
 	    	deleteItemCommand.execute();
-	    }
-	    public void verifyUser()
-	    {
-	    	verifyUserCommand.execute();
 	    }
 
 	 public static boolean verify(User user)
 	 {
 	 	 //Actual verification against list in verified.csv
-		 Database databaseRef = Database.getInstance();
-		 ArrayList<String[]> toCheck = databaseRef.getValidated();
-
-		 for(String[] userData : toCheck)
-		 {
-			 System.out.println(userData[0] + " " + userData[1]);
-			 //Checking name match
-			 if((user.name).equalsIgnoreCase(userData[0]))
-			 {
-				 //Checking type match
-				 if((user.type).equalsIgnoreCase(userData[1]))
-				 {
-					 //"Wraps" user in validated decorator
-					 ValidatedUser validated = new ValidatedUser(user);
-					 user.isVerified =true;
-
-					 //Creation was verified
-					 return validated.getIsVerified();
-				 }
-			 }
-		 }
-		 //Creation was not verified
-		 return false;  
+		user.isVerified = true;
+		return true;
+		
 	}
 }

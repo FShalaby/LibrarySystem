@@ -104,21 +104,14 @@ public class SignupDialog extends JFrame {
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
 
     // Create a new user based on selected type
-    User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
+    User newUser = UserFactory.createUser(name, email, pass, selectedUserType, false);
     newUser.writeUserCsv();
 
-    //Verification
-    boolean verified = LibraryManager.verify(newUser);
-    if (!verified) {
-      JOptionPane.showMessageDialog(
-          this, "Verification Required. Please wait while we check your information.");
-      return; // Stop signup process
-    }
-    else if(verified)
-    {
-      JOptionPane.showMessageDialog(this, "Verification successful, proceed to login.");
-      return;
-    }
+   if(selectedUserType.toLowerCase() != "visitor")
+   {
+	  JOptionPane.showMessageDialog(this,"Signup Successful! please wait until verified");
+
+   }
 
     db.getAllUsersMap();
     // return to login dialog
