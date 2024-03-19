@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.*;
+import java.util.Collections;
 import javax.swing.*;
 import sandbox.Database;
 import sandbox.LibraryManager;
@@ -38,7 +39,7 @@ public class SignupDialog extends JFrame {
     String[] userTypes = new String[] {"Student", "Faculty", "Non-Faculty", "Visitor"};
     this.userTypeComboBox = new JComboBox<>(userTypes);
     this.userTypeComboBox.setSize(384, 20);
-    this.userTypeComboBox.setPrototypeDisplayValue("_".repeat(48));
+    this.userTypeComboBox.setPrototypeDisplayValue(String.join("", Collections.nCopies(48, "_")));
 
     // init dialog
     this.setResizable(false);
