@@ -14,6 +14,8 @@ public class StudentWindow extends MainWindow {
   public StudentWindow() {
     super();
     setTitle("Student Main Window");
+    this.searchWindow.dispose();
+    this.searchWindow = new SearchWindow(this);
 
     // add rented items
     currentUser.rentedItems = Database.getInstance().getUserRentals(currentUser.id);

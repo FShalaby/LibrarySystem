@@ -13,7 +13,7 @@ public class MainWindow extends JFrame {
   private static final int WIN_HEIGHT = 640;
 
   // attributes
-  private final SearchWindow searchWindow = new SearchWindow();
+  protected SearchWindow searchWindow = new SearchWindow(this);
   protected final User currentUser = CurrentUser.getUserInstance();
 
   /** Creates the MainWindow. */

@@ -18,38 +18,39 @@ public class LibrarySystem {
 
   public String RentItem(Item item, User user) {
     // check last permission bit (renting bit)
-    if (user.limit < 10
-        && ((item.permission.getValue() & 1) == 1)
-        && item.copies > 0
-        && user.overdue < 3) {
-      item.status = ItemStatus.Rented;
-      user.rentedItems.add(item);
-      inventory.put(item.name, item.copies - 1);
-
-      LocalDate currentDate = LocalDate.now();
-      LocalDate dueDate = currentDate.plusDays(30);
-      item.dueDate = dueDate;
-
-      // Check for overdue
-      LocalDate today = LocalDate.now();
-      if (today.isAfter(dueDate)) {
-        long overdueDays = today.toEpochDay() - dueDate.toEpochDay();
-
-        // Calculate overdue fee
-        double fine = overdueDays * penalty;
-        user.overdue = user.overdue + 1;
-        return "Item " + item.name + " rented successfully. Overdue fee: $" + fine;
-      }
-
-      // Check if it's been more than 15 days
-      if (currentDate.isAfter(dueDate.plusDays(15))) {
-        item.isLost = true;
-      }
-      Database.insertRental(item.id,user.id);
-      return "Item " + item.name + " rented successfully.";
+    if (user.limit >= 10
+        || ((item.permission.getValue() & 1) != 1)
+        || item.copies <= 0
+        || user.overdue >= 3) {
+      return "Sorry, item " + item.name + " cannot be rented";
     }
 
-    return "Sorry, item " + item.name + " cannot be rented";
+    item.status = ItemStatus.Rented;
+    user.rentedItems.add(item);
+    inventory.put(item.name, item.copies - 1);
+
+    LocalDate currentDate = LocalDate.now();
+    LocalDate dueDate = currentDate.plusDays(30);
+    item.dueDate = dueDate;
+
+    // Check for overdue
+    LocalDate today = LocalDate.now();
+    if (today.isAfter(dueDate)) {
+      long overdueDays = today.toEpochDay() - dueDate.toEpochDay();
+
+      // Calculate overdue fee
+      double fine = overdueDays * penalty;
+      user.overdue = user.overdue + 1;
+      return "Item " + item.name + " rented successfully. Overdue fee: $" + fine;
+    }
+
+    // Check if it's been more than 15 days
+    if (currentDate.isAfter(dueDate.plusDays(15))) {
+      item.isLost = true;
+    }
+
+    Database.insertRental(item.id, user.id);
+    return "Item " + item.name + " rented successfully.";
   }
 
   public Item searchItem(String name) {
