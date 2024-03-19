@@ -1,5 +1,7 @@
 package sandbox;
 
+import java.util.ArrayList;
+
 public class LibraryManager {
 	 private Command addItemCommand;
 	 private Command enableItemCommand;
@@ -34,10 +36,32 @@ public class LibraryManager {
 	    {
 	    	verifyUserCommand.execute();
 	    }
-//	public static boolean verify(User user)
-//	{
-//		user.isVerified =true;
-//		return user.isVerified;
-//		
-//	}
+
+	 public static boolean verify(User user)
+	 {
+	 	 //Actual verification against list in verified.csv
+		 Database databaseRef = Database.getInstance();
+		 ArrayList<String[]> toCheck = databaseRef.getValidated();
+
+		 for(String[] userData : toCheck)
+		 {
+			 System.out.println(userData[0] + " " + userData[1]);
+			 //Checking name match
+			 if((user.name).equalsIgnoreCase(userData[0]))
+			 {
+				 //Checking type match
+				 if((user.type).equalsIgnoreCase(userData[1]))
+				 {
+					 //"Wraps" user in validated decorator
+					 ValidatedUser validated = new ValidatedUser(user);
+					 user.isVerified =true;
+
+					 //Creation was verified
+					 return validated.getIsVerified();
+				 }
+			 }
+		 }
+		 //Creation was not verified
+		 return false;  
+	}
 }
