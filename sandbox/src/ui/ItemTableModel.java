@@ -33,15 +33,23 @@ public class ItemTableModel extends AbstractTableModel {
    * @return the Object.class
    */
   public Class<?> getColumnClass(int columnIndex) {
-    return switch (columnIndex) {
-      case 0 -> items.get(0).name.getClass();
-      case 1 -> items.get(0).location.getClass();
-      case 2 -> items.get(0).type.getClass();
-      case 3 -> String.class; // price
-      case 4 -> items.get(0).category.getClass();
-      case 5 -> items.get(0).permission.getClass();
-      default -> Object.class;
-    };
+      switch (columnIndex) {
+          case 0:
+              return items.get(0).name.getClass();
+          case 1:
+              return items.get(0).location.getClass();
+          case 2:
+              return items.get(0).type.getClass();
+          case 3:
+              return String.class;
+          // price
+          case 4:
+              return items.get(0).category.getClass();
+          case 5:
+              return items.get(0).permission.getClass();
+          default:
+              return Object.class;
+      }
   }
 
   /**
@@ -78,17 +86,23 @@ public class ItemTableModel extends AbstractTableModel {
    */
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
-    return switch (columnIndex) {
-      case 0 -> items.get(rowIndex).name;
-      case 1 -> items.get(rowIndex).location;
-      case 2 -> items.get(rowIndex).type;
-      case 3 -> "$" + items.get(rowIndex).price;
-      case 4 -> items.get(rowIndex).category;
-      case 5 ->
-          items.get(rowIndex).permission == ItemPermission.RentableAndPurchasable
-              ? "Rentable/Purchasable"
-              : items.get(rowIndex).permission;
-      default -> null;
-    };
+      switch (columnIndex) {
+          case 0:
+              return items.get(rowIndex).name;
+          case 1:
+              return items.get(rowIndex).location;
+          case 2:
+              return items.get(rowIndex).type;
+          case 3:
+              return "$" + items.get(rowIndex).price;
+          case 4:
+              return items.get(rowIndex).category;
+          case 5:
+              return items.get(rowIndex).permission == ItemPermission.RentableAndPurchasable
+                      ? "Rentable/Purchasable"
+                      : items.get(rowIndex).permission;
+          default:
+              return null;
+      }
   }
 }
