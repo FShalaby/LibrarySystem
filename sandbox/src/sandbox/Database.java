@@ -290,6 +290,34 @@ public class Database {
     return null;
   }
 
+  public ArrayList<String[]> getValidated() {
+    String filename = getValidatedCsvFilename();
+
+
+    ArrayList<String[]> validList = new ArrayList<String[]>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+        String userData[] = new String[2];
+
+
+        if (parts.length >= 2) { // Ensure at least Two columns exist (last name, first name, type)
+          String name = parts[0].trim(); // Name is the first column
+          String type = parts[1].trim(); // Type name is the second column
+          userData[0] = name;
+          userData[1] = type;
+        }
+        validList.add(userData);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return validList;
+  }
+
+
   /**
    * Reads the users.csv file and returns a User with the given email address.
    *
@@ -463,6 +491,18 @@ public class Database {
     String path = new File("").getAbsolutePath();
     return path + "/db/users.csv";
   }
+
+  /**
+   * Gets the absolute path of the verified.csv file
+   * This contains accepted names in the system for validation. i.e names connected to our imaginary school
+   *
+   * @return filename
+   */
+  private static String getValidatedCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/verified.csv";
+  }
+
 
   private Item itemFromCsvLine(String line) {
     String[] parts = line.split(",");
