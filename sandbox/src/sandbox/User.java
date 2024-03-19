@@ -29,6 +29,6 @@ public abstract class User {
   // ===============================
 
   public synchronized void writeUserCsv() {
-    Database.getInstance().insertUser(this.name, this.id, this.email, this.pw, this.type);
+    Database.getInstance().insertUser(this.name, this.id, this.email, this.pw, this.type, this.isVerified);
   }
 }

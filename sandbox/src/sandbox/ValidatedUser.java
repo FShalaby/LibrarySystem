@@ -19,7 +19,7 @@ public class ValidatedUser extends User
     */
 
     public synchronized void writeUserCsv() {
-        Database.getInstance().insertUser(verified.name, verified.id, verified.email, verified.pw, verified.type);
+        Database.getInstance().insertUser(verified.name, verified.id, verified.email, verified.pw, verified.type,verified.isVerified);
       }
 
     //Accessor methods

@@ -1,3 +1,4 @@
-id,name,location,type,price,status,permission,category,copies,dueDate,isLost
-9780201633610,Design Patterns: Elements of Reusable Object-Oriented Software,Scott Library,3,0.00,0,1,Programming,80,1970-01-01,false
-9780241341650,Nineteen Eighty-Four,Online,0,13.29,0,3,Fiction,1984,1970-01-01,false
+id,name,location,type,price,status,permission,category,copies,isLost
+9780201633610,Design Patterns: Elements of Reusable Object-Oriented Software,Scott Library,3,0.00,0,1,Programming,20,false
+9780241341650,Nineteen Eighty-Four,Online,0,13.29,0,3,Fiction,20,false
+
