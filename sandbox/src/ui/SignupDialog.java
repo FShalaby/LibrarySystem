@@ -7,6 +7,9 @@ import sandbox.LibraryManager;
 import sandbox.User;
 import sandbox.UserFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
   // constants
@@ -100,6 +103,17 @@ public class SignupDialog extends JFrame {
       JOptionPane.showMessageDialog(this, "User with email '" + email + "' already exists");
       return;
     }
+    
+ // Check password strength
+    List<String> passwordErrors = checkPasswordStrength(pass);
+    if (!passwordErrors.isEmpty()) {
+        StringBuilder errorMessage = new StringBuilder("Password requirements not met:\n");
+        for (String error : passwordErrors) {
+            errorMessage.append("- ").append(error).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, errorMessage.toString());
+        return;
+    }
 
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
 
@@ -117,6 +131,37 @@ public class SignupDialog extends JFrame {
     // return to login dialog
     showLoginDialog();
   }
+  private List<String> checkPasswordStrength(String password) {
+	    List<String> errors = new ArrayList<>();
+
+	    // Check if password is at least 8 characters long
+	    if (password.length() < 8) {
+	        errors.add("Password must be at least 8 characters long");
+	    }
+
+	    // Check if password contains at least one uppercase letter
+	    if (!password.matches(".*[A-Z].*")) {
+	        errors.add("Password must contain at least one uppercase letter");
+	    }
+
+	    // Check if password contains at least one lowercase letter
+	    if (!password.matches(".*[a-z].*")) {
+	        errors.add("Password must contain at least one lowercase letter");
+	    }
+
+	    // Check if password contains at least one digit
+	    if (!password.matches(".*\\d.*")) {
+	        errors.add("Password must contain at least one digit");
+	    }
+
+	    // Check if password contains at least one special character
+	    if (!password.matches(".*[@#$%^&+=].*")) {
+	        errors.add("Password must contain at least one special character");
+	    }
+
+	    return errors;
+	}
+
 
   /** Creates and shows login dialog, disposes self */
   private void showLoginDialog() {
