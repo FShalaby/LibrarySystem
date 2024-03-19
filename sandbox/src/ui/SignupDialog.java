@@ -3,6 +3,7 @@ package ui;
 import java.awt.*;
 import javax.swing.*;
 import sandbox.Database;
+import sandbox.LibraryManager;
 import sandbox.User;
 import sandbox.UserFactory;
 
@@ -105,10 +106,18 @@ public class SignupDialog extends JFrame {
     // Create a new user based on selected type
     User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
     newUser.writeUserCsv();
-    if (!newUser.isVerified) {
+
+    //Verification
+    boolean verified = LibraryManager.verify(newUser);
+    if (!verified) {
       JOptionPane.showMessageDialog(
           this, "Verification Required. Please wait while we check your information.");
       return; // Stop signup process
+    }
+    else if(verified)
+    {
+      JOptionPane.showMessageDialog(this, "Verification successful, proceed to login.");
+      return;
     }
 
     db.getAllUsersMap();
