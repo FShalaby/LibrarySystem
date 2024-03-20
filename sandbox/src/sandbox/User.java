@@ -17,7 +17,7 @@ public abstract class User {
   protected int overdue = 0;
   protected double penalty = 0.0;
   private List<RentedItem> rentedItems = new ArrayList<>();
-  public HashMap<Newsletter, Boolean> subscriptions;
+  public HashMap<Newsletter, Boolean> subscriptions = new HashMap<Newsletter,Boolean>();
 
   // Generate random ID()
   protected static String generateRandomID() {

@@ -2,11 +2,12 @@ package ui;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import sandbox.CurrentUser;
-import sandbox.RentedItem;
-import sandbox.User;
+
+import sandbox.*;
 
 /** The main entrypoint for the GUI. */
 public class MainWindow extends JFrame {
@@ -17,6 +18,8 @@ public class MainWindow extends JFrame {
   // attributes
   protected SearchWindow searchWindow = new SearchWindow(this);
   protected final User currentUser = CurrentUser.getUserInstance();
+  protected Subscribed subscribedWindow = new Subscribed();
+  List<Newsletter> subscriptions = new ArrayList<Newsletter>();
 
   /** Creates the MainWindow. */
   protected MainWindow() {
@@ -59,6 +62,10 @@ public class MainWindow extends JFrame {
   public void showSearchWindow() {
     this.searchWindow.setVisible(true);
   }
+  public void showSubscribed()
+  {
+    this.subscribedWindow.setVisible(true);
+  }
 
   /**
    * Creates the MainWindow's navigation/top panel.
@@ -97,6 +104,21 @@ public class MainWindow extends JFrame {
     searchButton.addActionListener(e -> showSearchWindow());
     rightPanel.add(searchButton);
 
+    if(currentUser!= null) {
+      subscriptions = Database.getUserSubscription(currentUser.id);
+      boolean check = false;
+      for (Newsletter i : subscriptions) {
+        if (subscriptions.contains(i)) {
+          check = true;
+        }
+      }
+
+      if (check == true) {
+        JButton viewNews = new JButton("View News");
+        viewNews.addActionListener(e -> showSubscribed());
+        rightPanel.add(viewNews);
+      }
+    }
     JButton logoutButton = new JButton("Logout");
     logoutButton.addActionListener(e -> showLoginDialog());
     rightPanel.add(logoutButton);

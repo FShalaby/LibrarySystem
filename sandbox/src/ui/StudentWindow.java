@@ -4,18 +4,24 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+
+import sandbox.CurrentUser;
 import sandbox.RentedItem;
+import sandbox.User;
 
 public class StudentWindow extends MainWindow {
+  protected final User currentUser = CurrentUser.getUserInstance();
+
   public StudentWindow() {
     super();
     setTitle("Student Main Window");
     this.searchWindow.dispose();
     this.searchWindow = new SearchWindow(this);
-
     // Customize the window for student user
     customizeForStudent();
   }
@@ -49,5 +55,19 @@ public class StudentWindow extends MainWindow {
     cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
     leftPanel.add(cardPanel);
     centerPanel.add(leftPanel, BorderLayout.WEST);
+
+
+    JButton newslettersButton = new JButton("Newsletters");
+    newslettersButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        // Open the Newsletters window
+        NewslettersWindow newslettersWindow = new NewslettersWindow(StudentWindow.this);
+        newslettersWindow.setVisible(true);
+      }
+    });
+
+    // Add the button to the main window
+    getContentPane().add(newslettersButton, BorderLayout.SOUTH);
   }
 }
