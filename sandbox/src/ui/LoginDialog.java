@@ -148,7 +148,7 @@ public class LoginDialog extends JFrame {
         new StudentWindow().setVisible(true);
         break;
       case "faculty":
-        new FacultyWindow(user).setVisible(true);
+        new FacultyWindow().setVisible(true);
         break;
       case "non-faculty":
         new NonFacultyWindow(user).setVisible(true);

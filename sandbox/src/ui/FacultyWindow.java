@@ -1,32 +1,40 @@
 package ui;
 
-import java.awt.Font;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import sandbox.User;
+import java.awt.*;
+import javax.swing.*;
+import sandbox.*;
 
 public class FacultyWindow extends MainWindow {
-	public static User user;
-    public FacultyWindow(User user) {
-        super();
-        this.user=user;
-        setTitle("Faculty Main Window");
-        // Customize the window for faculty user
-        customizeForFaculty(this.user);
+  private final Faculty currentUser = (Faculty) CurrentUser.getUserInstance();
+
+  public FacultyWindow() {
+    super();
+    setTitle("Faculty Main Window");
+
+    if (currentUser != null) {
+      Database db = Database.getInstance();
+      currentUser.setCourses(db.getFacultyCourses(currentUser.id));
     }
 
-    private void customizeForFaculty(User user) {
-        // Customize components as needed for faculty user
-        JLabel userTypeLabel = new JLabel("Faculty");
-        userTypeLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
-        centerPanel.add(userTypeLabel);
+    // Customize the window for faculty user
+    customizeForFaculty();
+  }
+
+  private void customizeForFaculty() {
+    JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
+
+    if (currentUser == null) {
+      return;
     }
 
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new FacultyWindow(user).showLoginDialog());
-//    }
+    JTable table = new JTable(new CourseTableModel(currentUser.getCourses()));
+    table.setFillsViewportHeight(true);
+    table.setPreferredScrollableViewportSize(
+        new Dimension((WIN_WIDTH / 2), WIN_HEIGHT - 160)); // padding_x: 18px
+
+    JScrollPane scrollPane = new JScrollPane(table);
+
+    // add panel
+    centerPanel.add(scrollPane, BorderLayout.EAST);
+  }
 }
