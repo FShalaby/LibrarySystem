@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.time.LocalDate;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -53,6 +51,17 @@ public class StudentWindow extends MainWindow {
   private void customizeForStudent() {
     JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
     addTextbookPanel(centerPanel);
+
+    JButton newslettersButton = new JButton("Newsletters");
+    newslettersButton.addActionListener(
+        e -> {
+          // Open the Newsletters window
+          NewslettersWindow newslettersWindow = new NewslettersWindow(StudentWindow.this);
+          newslettersWindow.setVisible(true);
+        });
+
+    // Add the button to the main window
+    centerPanel.add(newslettersButton, BorderLayout.SOUTH);
   }
 
   private void addTextbookPanel(JPanel centerPanel) {
@@ -87,19 +96,5 @@ public class StudentWindow extends MainWindow {
     leftPanel.add(cardPanel);
     textbookPanel.add(leftPanel, BorderLayout.CENTER);
     centerPanel.add(textbookPanel, BorderLayout.EAST);
-
-
-    JButton newslettersButton = new JButton("Newsletters");
-    newslettersButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        // Open the Newsletters window
-        NewslettersWindow newslettersWindow = new NewslettersWindow(StudentWindow.this);
-        newslettersWindow.setVisible(true);
-      }
-    });
-
-    // Add the button to the main window
-    getContentPane().add(newslettersButton, BorderLayout.SOUTH);
   }
 }
