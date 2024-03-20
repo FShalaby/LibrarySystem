@@ -18,7 +18,7 @@ public class LoginDialog extends JFrame {
   // attributes
   private final MainWindow mainWindow;
   private final Database db = Database.getInstance();
-  private final static JTextField emailField = new JTextField(32);
+  private static final JTextField emailField = new JTextField(32);
   private final JPasswordField passField = new JPasswordField(32);
 
   /**
@@ -55,14 +55,13 @@ public class LoginDialog extends JFrame {
 
     JButton closeButton = new JButton("Close");
     closeButton.addActionListener(e -> System.exit(0));
-    
-//    JButton ManagerLogin = new JButton("Admin Login");
-//    ManagerLogin.addActionListener(e -> ManagerLogin());
+
+    //    JButton ManagerLogin = new JButton("Admin Login");
+    //    ManagerLogin.addActionListener(e -> ManagerLogin());
 
     JButton signupButton = new JButton("Signup");
     signupButton.addActionListener(e -> showSignupDialog());
-    
-   
+
     JButton loginButton = new JButton("Login");
     loginButton.addActionListener(e -> loginAction());
 
@@ -77,28 +76,30 @@ public class LoginDialog extends JFrame {
 
     return formPanel;
   }
-//  private void ManagerLogin() {
-//	  String email = getEmailField().getText();
-//	    String pass = new String(passField.getPassword());
-//	    
-//	    
-//	    User manager = Database.getUserByEmail(email)
-//	   
-//	    if (!email.equals(Database.getUserByEmail(email)) || !pass.equals(Database.getPasswordByEmail(email))) {
-//	        JOptionPane.showMessageDialog(this, "Invalid email or password");
-//	        return;
-//	    }
-//
-//	    // Open ManagerView
-//	    ManagerView managerView = new ManagerView(manager);
-//	    managerView.setVisible(true);
-//	    this.dispose();
-//
-//	    JOptionPane.showMessageDialog(this, "Login successful!");
-////	    JOptionPane.showMessageDialog(this, "Login successful!");
-////	    this.mainWindow.setVisible(true);
-////	    this.dispose();
-//	  }
+
+  //  private void ManagerLogin() {
+  //	  String email = getEmailField().getText();
+  //	    String pass = new String(passField.getPassword());
+  //
+  //
+  //	    User manager = Database.getUserByEmail(email)
+  //
+  //	    if (!email.equals(Database.getUserByEmail(email)) ||
+  // !pass.equals(Database.getPasswordByEmail(email))) {
+  //	        JOptionPane.showMessageDialog(this, "Invalid email or password");
+  //	        return;
+  //	    }
+  //
+  //	    // Open ManagerView
+  //	    ManagerView managerView = new ManagerView(manager);
+  //	    managerView.setVisible(true);
+  //	    this.dispose();
+  //
+  //	    JOptionPane.showMessageDialog(this, "Login successful!");
+  ////	    JOptionPane.showMessageDialog(this, "Login successful!");
+  ////	    this.mainWindow.setVisible(true);
+  ////	    this.dispose();
+  //	  }
 
   /** Primary action associated with clicking the Login button. */
   private void loginAction() {
@@ -116,47 +117,40 @@ public class LoginDialog extends JFrame {
     User user = db.getUserByEmail(email);
     CurrentUser.setUserInstance(user);
 
-    // TODO: check user is verified
-    //        if () {}
-
     if (user == null || user.type == null) {
-        JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
-        return;
+      JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
+      return;
     }
-    if(user.isVerified)
-    {
+
+    if (!user.isVerified) {
+      JOptionPane.showMessageDialog(this, "Login Failed! Verification needed");
+      return;
+    }
+
+    CurrentUser.getUserInstance().setRentedItems(db.getUserRentals(user.id));
+
     switch (user.type.toLowerCase()) {
-    case "student":
+      case "student":
         new StudentWindow().setVisible(true);
         break;
-    case "faculty":
+      case "faculty":
         new FacultyWindow(user).setVisible(true);
         break;
-    case "non-faculty":
+      case "non-faculty":
         new NonFacultyWindow(user).setVisible(true);
         break;
-    case "visitor":
+      case "visitor":
         new VisitorWindow(user).setVisible(true);
         break;
-    case "manager":
-    	new ManagerView((LibraryManager) user).setVisible(true);
-    	break;
-    default:
+      case "manager":
+        new ManagerView((LibraryManager) user).setVisible(true);
+        break;
+      default:
         JOptionPane.showMessageDialog(this, "Unknown user type");
         break;
-}
-    }
-    else
-    {
-        JOptionPane.showMessageDialog(this, "Login Failed! Verificaition needed");
-        return;
-
     }
 
     this.dispose();
-//    JOptionPane.showMessageDialog(this, "Login successful!");
-//    this.mainWindow.setVisible(true);
-//    this.dispose();
   }
 
   /** Creates and displays a signup dialog. */
@@ -167,7 +161,7 @@ public class LoginDialog extends JFrame {
     this.setVisible(false);
   }
 
-public static JTextField getEmailField() {
-	return emailField;
-}
+  public static JTextField getEmailField() {
+    return emailField;
+  }
 }

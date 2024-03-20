@@ -74,6 +74,17 @@ public class MainWindow extends JFrame {
     greeter.setBorder(new EmptyBorder(5, 0, 5, 0));
     leftPanel.add(greeter);
 
+    if (currentUser != null && currentUser.getOverdue() > 0) {
+      JLabel overdueLabel =
+          new JLabel(
+              String.format(
+                  "%d items overdue ($%.2f penalty)",
+                  currentUser.getOverdue(), currentUser.getPenalty()));
+      overdueLabel.setBorder(new EmptyBorder(5, 5, 5, 0));
+      overdueLabel.setForeground(Color.RED);
+      leftPanel.add(overdueLabel);
+    }
+
     // right panel content
     JButton searchButton = new JButton("Search Library");
     searchButton.addActionListener(e -> showSearchWindow());
