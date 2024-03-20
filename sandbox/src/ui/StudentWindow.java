@@ -4,38 +4,67 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.time.LocalDate;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
-
-import sandbox.CurrentUser;
-import sandbox.RentedItem;
-import sandbox.User;
+import sandbox.*;
 
 public class StudentWindow extends MainWindow {
-  protected final User currentUser = CurrentUser.getUserInstance();
+  private final Student currentUser = (Student) CurrentUser.getUserInstance();
 
   public StudentWindow() {
     super();
     setTitle("Student Main Window");
     this.searchWindow.dispose();
     this.searchWindow = new SearchWindow(this);
+
+    if (currentUser != null) {
+      Database db = Database.getInstance();
+      currentUser.setCourses(db.getStudentCourses(currentUser.id));
+      for (Course course : currentUser.getCourses()) {
+        // ignore past courses
+        if (course.getEndDate().isBefore(LocalDate.now())) {
+          continue;
+        }
+
+        boolean hasRented = false;
+        for (RentedItem rental : currentUser.getRentedItems()) {
+          if (rental.getItem().id.equalsIgnoreCase(course.getTextbook().id)) {
+            hasRented = true;
+            break;
+          }
+        }
+
+        if (!hasRented) {
+          db.insertRental(course.getTextbook().id, currentUser.id, course.getEndDate());
+          currentUser.addRentedItem(
+              new RentedItem(course.getTextbook(), currentUser.id, course.getEndDate()));
+        }
+      }
+    }
+
     // Customize the window for student user
     customizeForStudent();
   }
 
   private void customizeForStudent() {
     JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
-    centerPanel.setLayout(new BorderLayout());
+    addTextbookPanel(centerPanel);
+  }
 
-    JLabel rentedBooksLabel =
-        new JLabel(currentUser.getRentedItems().isEmpty() ? "No Books Rented" : "Rented Books");
-    rentedBooksLabel.setFont(new Font(rentedBooksLabel.getFont().getFontName(), Font.BOLD, 18));
-    centerPanel.add(rentedBooksLabel, BorderLayout.NORTH);
+  private void addTextbookPanel(JPanel centerPanel) {
+    JPanel textbookPanel = new JPanel();
+    textbookPanel.setLayout(new BorderLayout());
 
-    // rented books panel
+    JLabel textbookLabel =
+        new JLabel(currentUser.getRentedItems().isEmpty() ? "No Textbooks" : "Textbooks");
+    textbookLabel.setFont(new Font(textbookLabel.getFont().getFontName(), Font.BOLD, 18));
+    textbookPanel.add(textbookLabel, BorderLayout.NORTH);
+
+    // textbooks panel
     JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     // Create a border and padding for the rented books section
@@ -49,12 +78,15 @@ public class StudentWindow extends MainWindow {
 
     JPanel cardPanel = new JPanel();
     for (RentedItem book : currentUser.getRentedItems()) {
-      JPanel bookPanel = new RentedBookCard(book);
-      cardPanel.add(bookPanel);
+      if (book.getItem().location.equalsIgnoreCase("online")) {
+        JPanel bookPanel = new RentedBookCard(book);
+        cardPanel.add(bookPanel);
+      }
     }
     cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
     leftPanel.add(cardPanel);
-    centerPanel.add(leftPanel, BorderLayout.WEST);
+    textbookPanel.add(leftPanel, BorderLayout.CENTER);
+    centerPanel.add(textbookPanel, BorderLayout.EAST);
 
 
     JButton newslettersButton = new JButton("Newsletters");

@@ -146,6 +146,14 @@ public class LibrarySystem {
     return "Sorry, item " + item.name + " cannot be purchased";
   }
 
+  public void createVirtualCopy(String itemID) {
+   db.updateItemCopies(itemID, 1);
+  }
+
+  public void removeVirtualCopy(String itemID) {
+    db.updateItemCopies(itemID, -1);
+  }
+
   public static List<RentedItem> displayRentedBooks(User user) {
     return user.getRentedItems();
   }
