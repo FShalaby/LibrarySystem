@@ -3,15 +3,16 @@ package sandbox;
 import java.time.LocalDate;
 
 public class RentedItem {
-  public static final int MAX_RENTAL_DAYS = 30;
   private final Item item;
   private final String userID;
   private final LocalDate dueDate;
+  private final boolean isLost;
 
   public RentedItem(Item item, String userID, LocalDate dueDate) {
     this.item = item;
     this.userID = userID;
     this.dueDate = dueDate;
+    this.isLost = dueDate.plusDays(15).isBefore(LocalDate.now());
   }
 
   public Item getItem() {
@@ -24,5 +25,9 @@ public class RentedItem {
 
   public LocalDate getDueDate() {
     return dueDate;
+  }
+
+  public boolean isLost() {
+    return isLost;
   }
 }

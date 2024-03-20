@@ -74,7 +74,7 @@ public abstract class User {
 
       if (rental.getDueDate().isBefore(LocalDate.now())) {
         overdue++;
-        penalty = LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
+        penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
       }
     }
   }

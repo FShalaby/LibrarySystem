@@ -1,9 +1,11 @@
 package ui;
 
 import java.awt.*;
+import java.time.LocalDate;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import sandbox.CurrentUser;
+import sandbox.RentedItem;
 import sandbox.User;
 
 /** The main entrypoint for the GUI. */
@@ -33,6 +35,11 @@ public class MainWindow extends JFrame {
     // add panels
     this.add(createTopPanel(), BorderLayout.NORTH);
     this.add(createCenterPanel(), BorderLayout.CENTER);
+
+    // display alert
+    if (currentUser != null) {
+      showDueAlert();
+    }
   }
 
   public static void main(String[] args) {
@@ -111,10 +118,45 @@ public class MainWindow extends JFrame {
     centerPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
     // add content
-    JLabel label = new JLabel("Main Page");
 
     // add panel
-    centerPanel.add(label);
     return centerPanel;
+  }
+
+  private void showDueAlert() {
+    StringBuilder upcomingBuilder = new StringBuilder();
+    StringBuilder pastBuilder = new StringBuilder();
+
+    for (RentedItem rental : currentUser.getRentedItems()) {
+      // due today or tomorrow
+      if (rental.getDueDate().isEqual(LocalDate.now())
+          || LocalDate.now().plusDays(1).equals(rental.getDueDate())) {
+        upcomingBuilder.append(rental.getItem().name);
+        upcomingBuilder.append(" due in less than 24 hours\n");
+        continue;
+      }
+
+      // less than 15 days past due
+      if (rental.getDueDate().isBefore(LocalDate.now()) && !rental.isLost()) {
+        pastBuilder.append(rental.getItem().name);
+        pastBuilder.append(" is past the due date\n");
+      }
+    }
+
+    StringBuilder finalBuilder = new StringBuilder();
+    if (!upcomingBuilder.toString().isEmpty()) {
+      finalBuilder.append("Due Soon:\n");
+      finalBuilder.append(upcomingBuilder);
+    }
+
+    if (!pastBuilder.toString().isEmpty()) {
+      finalBuilder.append(finalBuilder.toString().isEmpty() ? "\n\n" : "");
+      finalBuilder.append("Past Due:\n");
+      finalBuilder.append(pastBuilder);
+    }
+
+    if (!finalBuilder.toString().isEmpty()) {
+      JOptionPane.showMessageDialog(this, finalBuilder.toString());
+    }
   }
 }
