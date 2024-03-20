@@ -14,8 +14,8 @@ import sandbox.*;
 /** The main entrypoint for the GUI. */
 public class MainWindow extends JFrame {
   // constants
-  private static final int WIN_WIDTH = 1024;
-  private static final int WIN_HEIGHT = 640;
+  protected static final int WIN_WIDTH = 1024;
+  protected static final int WIN_HEIGHT = 640;
 
   // attributes
   protected SearchWindow searchWindow = new SearchWindow(this);
