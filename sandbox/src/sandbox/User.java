@@ -1,5 +1,6 @@
 package sandbox;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,8 @@ public abstract class User {
   public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
-  public List<Item> rentedItems = new ArrayList<>();
+  protected double penalty = 0.0;
+  private List<RentedItem> rentedItems = new ArrayList<>();
   public HashMap<Newsletter, Boolean> subscriptions;
 
   // Generate random ID()
@@ -29,6 +31,51 @@ public abstract class User {
   // ===============================
 
   public synchronized void writeUserCsv() {
-    Database.getInstance().insertUser(this.name, this.id, this.email, this.pw, this.type, this.isVerified);
+    Database.getInstance()
+        .insertUser(this.name, this.id, this.email, this.pw, this.type, this.isVerified);
+  }
+
+  public double getPenalty() {
+    return penalty;
+  }
+
+  public int getLimit() {
+    return limit;
+  }
+
+  public int getOverdue() {
+    return overdue;
+  }
+
+  public List<RentedItem> getRentedItems() {
+    return rentedItems;
+  }
+
+  public void addRentedItem(RentedItem item) {
+    this.rentedItems.add(item);
+
+    // count physical items
+    if (!item.getItem().location.equalsIgnoreCase("online")) {
+      limit++;
+    }
+  }
+
+  public void setRentedItems(List<RentedItem> rentedItems) {
+    this.rentedItems = rentedItems;
+    limit = 0;
+    overdue = 0;
+    penalty = 0;
+
+    for (RentedItem rental : rentedItems) {
+      // count physical items
+      if (!rental.getItem().location.equalsIgnoreCase("online")) {
+        limit++;
+      }
+
+      if (rental.getDueDate().isBefore(LocalDate.now())) {
+        overdue++;
+        penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
+      }
+    }
   }
 }
