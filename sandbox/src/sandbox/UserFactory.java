@@ -13,7 +13,7 @@ public class UserFactory {
       case "visitor":
         return new Visitor(name, email, password, userType);
       case "manager":
-        new LibraryManager(name, email, password, userType);
+        return new LibraryManager(name, email, password, userType);
       default:
         throw new IllegalArgumentException("Invalid user type");
     }
@@ -31,7 +31,7 @@ public class UserFactory {
       case "visitor":
         return new Visitor(name, email, password, userType, id);
       case "manager":
-        new LibraryManager(name, email, password, userType, id);
+        return new LibraryManager(name, email, password, userType, id);
       default:
         throw new IllegalArgumentException("Invalid user type");
     }

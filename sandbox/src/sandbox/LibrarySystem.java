@@ -9,6 +9,7 @@ public class LibrarySystem {
   private final Database db = Database.getInstance();
   public Item item;
   public User user;
+  public Newsletter newsletter;
   public static HashMap<String, Integer> inventory = new HashMap<>();
   public static HashMap<String, String> genre = new HashMap<>();
   public static HashMap<String, Item> itemMap = new HashMap<>();
@@ -80,6 +81,35 @@ public class LibrarySystem {
     }
 
     return item;
+  }
+
+  public Newsletter searchNews(String name) {
+    String lowercaseName = name.toLowerCase(); // Convert search query to lowercase
+    List<Newsletter> news = db.getNewsletters();
+
+    // first check inventory
+    for (String newsName : inventory.keySet()) {
+      String lowercaseItemName = newsletter.name.toLowerCase(); // Convert item name to lowercase
+      if (lowercaseItemName.equals(lowercaseName)) {
+        return newsletter; // Return the item if found
+      }
+    }
+
+    Newsletter n = null;
+    // check db if inventory does not have item
+    for (Newsletter i : news) {
+      // prioritize exact match
+      if (Objects.equals(lowercaseName, i.name.toLowerCase())) {
+        return i;
+      }
+
+      // if not exact match, find first item whose name is close enough
+      if (n == null && i.name.toLowerCase().contains(lowercaseName)) {
+        n = i;
+      }
+    }
+
+    return n;
   }
 
   public List<Item> getRecommendations(String category) {
