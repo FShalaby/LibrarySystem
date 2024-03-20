@@ -118,8 +118,8 @@ public class LoginDialog extends JFrame {
 
     // TODO: check user is verified
     //        if () {}
-    
-    if (user.type == null) {
+
+    if (user == null || user.type == null) {
         JOptionPane.showMessageDialog(this, "Failed to retrieve user type");
         return;
     }

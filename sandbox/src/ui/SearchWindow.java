@@ -20,10 +20,14 @@ public class SearchWindow extends JFrame {
   private final JTextField searchField = new JTextField(32);
   private JTable table;
   private List<Item> tableItems;
+  private final MainWindow parent;
 
   /** Creates the SearchWindow. */
-  public SearchWindow() {
+  public SearchWindow(MainWindow parent) {
     super("Search Library");
+
+    // set attributes
+    this.parent = parent;
 
     // init window
     this.setLayout(new BorderLayout());
@@ -41,7 +45,16 @@ public class SearchWindow extends JFrame {
     this.add(createBottomPanel(), BorderLayout.SOUTH);
   }
 
+  /** Disposes of the parent window (MainWindow) and creates a new one */
   private void backAction() {
+    // recreate parent window from scratch
+    if (this.parent instanceof StudentWindow) {
+      new StudentWindow().setVisible(true);
+    } else {
+      new MainWindow().setVisible(true);
+    }
+
+    this.parent.dispose();
     this.setVisible(false);
   }
 
