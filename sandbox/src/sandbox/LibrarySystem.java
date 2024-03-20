@@ -26,7 +26,7 @@ public class LibrarySystem {
     }
 
     item.status = ItemStatus.Rented;
-    user.rentedItems.add(item);
+    user.addRentedItem(new RentedItem(item, user.id, LocalDate.now().plusDays(30)));
     inventory.put(item.name, item.copies - 1);
 
     LocalDate currentDate = LocalDate.now();
@@ -116,8 +116,8 @@ public class LibrarySystem {
     return "Sorry, item " + item.name + " cannot be purchased";
   }
 
-  public static List<Item> displayRentedBooks(User user) {
-    return user.rentedItems;
+  public static List<RentedItem> displayRentedBooks(User user) {
+    return user.getRentedItems();
   }
 
   public HashMap<String, Integer> getInventory() {
