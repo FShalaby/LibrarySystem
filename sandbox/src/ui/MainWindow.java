@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import sandbox.*;
@@ -12,8 +14,8 @@ import sandbox.*;
 /** The main entrypoint for the GUI. */
 public class MainWindow extends JFrame {
   // constants
-  private static final int WIN_WIDTH = 1024;
-  private static final int WIN_HEIGHT = 640;
+  protected static final int WIN_WIDTH = 1024;
+  protected static final int WIN_HEIGHT = 640;
 
   // attributes
   protected SearchWindow searchWindow = new SearchWindow(this);
@@ -136,13 +138,46 @@ public class MainWindow extends JFrame {
    */
   private JPanel createCenterPanel() {
     JPanel centerPanel = new JPanel();
-    centerPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+    centerPanel.setLayout(new BorderLayout());
     centerPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
     // add content
+    if (currentUser != null) {
+      addRentalPanel(centerPanel);
+    }
 
     // add panel
     return centerPanel;
+  }
+
+  private void addRentalPanel(JPanel centerPanel) {
+    JLabel rentedBooksLabel =
+        new JLabel(currentUser.getRentedItems().isEmpty() ? "No Books Rented" : "Rented Books");
+    rentedBooksLabel.setFont(new Font(rentedBooksLabel.getFont().getFontName(), Font.BOLD, 18));
+    centerPanel.add(rentedBooksLabel, BorderLayout.NORTH);
+
+    // rented books panel
+    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+    // Create a border and padding for the rented books section
+    Border border =
+        BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.LIGHT_GRAY);
+    Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+    Border compound = BorderFactory.createCompoundBorder(border, padding);
+    leftPanel.setBorder(compound);
+
+    if (currentUser.getRentedItems().isEmpty()) return;
+
+    JPanel cardPanel = new JPanel();
+    for (RentedItem book : currentUser.getRentedItems()) {
+      if (!book.getItem().location.equalsIgnoreCase("online")) {
+        JPanel bookPanel = new RentedBookCard(book);
+        cardPanel.add(bookPanel);
+      }
+    }
+    cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+    leftPanel.add(cardPanel);
+    centerPanel.add(leftPanel, BorderLayout.WEST);
   }
 
   private void showDueAlert() {

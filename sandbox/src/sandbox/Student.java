@@ -1,9 +1,10 @@
 package sandbox;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Student extends User {
-  ArrayList courses = new ArrayList<Course>();
+  private List<Course> courses = new ArrayList<>();
 
   public Student(String name, String email, String password, String type, boolean verify) {
     this.name = name;
@@ -14,7 +15,8 @@ public class Student extends User {
     this.isVerified = verify;
   }
 
-  public Student(String name, String email, String password, String type, String id, boolean verify) {
+  public Student(
+      String name, String email, String password, String type, String id, boolean verify) {
     this.name = name;
     this.email = email;
     this.pw = password;
@@ -23,11 +25,11 @@ public class Student extends User {
     this.isVerified = verify;
   }
 
-  //	this.isVerified = LibraryManager.verify(this);
-  //    if (this.isVerified) {
-  //        writeUserCsv(this.name, this.email, this.pw, this.id);
-  //    } else {
-  //        System.out.println("Student verification failed. User not added to CSV.");
-  //    }
+  public List<Course> getCourses() {
+    return courses;
+  }
 
+  public void setCourses(List<Course> courses) {
+    this.courses = courses;
+  }
 }
