@@ -49,11 +49,9 @@ public class SearchWindow extends JFrame {
     // recreate parent window from scratch
     if (this.parent instanceof StudentWindow) {
       new StudentWindow().setVisible(true);
-    }else if(this.parent instanceof FacultyWindow)
-    {
+    } else if (this.parent instanceof FacultyWindow) {
       new FacultyWindow().setVisible(true);
-    }
-    else {
+    } else {
       new MainWindow().setVisible(true);
     }
 
@@ -82,6 +80,10 @@ public class SearchWindow extends JFrame {
     JButton backButton = new JButton("Back");
     backButton.addActionListener(e -> backAction());
     leftPanel.add(backButton);
+
+    JButton requestButton = new JButton("Request Book");
+    requestButton.addActionListener(e -> requestAction());
+    leftPanel.add(requestButton);
 
     // right panel content
     this.searchField.setRequestFocusEnabled(true);
@@ -206,6 +208,11 @@ public class SearchWindow extends JFrame {
     // Open the payment form
     PaymentForm paymentForm = new PaymentForm(this, item);
     paymentForm.setVisible(true);
+  }
+
+  private void requestAction() {
+    RequestItemDialog dialog = new RequestItemDialog();
+    dialog.setVisible(true);
   }
 
   public class PaymentForm extends JFrame {
