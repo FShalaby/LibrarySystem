@@ -56,6 +56,28 @@ public class Database {
   }
 
   /**
+   * Inserts a new row into rentals.csv.
+   *
+   * @param itemID The ID of the rented item
+   * @param userID The ID of the renter
+   * @param dueDate The due date of the rented item
+   */
+  public void insertRental(String itemID, String userID, LocalDate dueDate) {
+    String filename = getRentalsCsvFilename();
+
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.write(String.format("%s,%s,%s", itemID, userID, dueDate));
+      writer.newLine();
+      writer.close();
+
+      System.out.println("Rental data has been written to the CSV file.");
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+  }
+
+  /**
    * Inserts a new row into rentals.csv, due date is automatically calculated (now + 1 month).
    *
    * @param itemID The ID of the rented item
@@ -111,11 +133,128 @@ public class Database {
       writer.newLine();
       System.out.println("User data has been written to the CSV file.");
     } catch (IOException ex) {
-      ex.printStackTrace();
+      System.err.println(ex.getMessage());
     }
   }
 
   // read methods
+
+  /**
+   * Reads the courses.csv file and returns a list containing all courses.
+   *
+   * @return courses
+   */
+  public List<Course> getAllCourses() {
+    String filename = getCoursesCsvFilename();
+
+    ArrayList<Course> courses = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("id,") || line.isEmpty()) {
+          continue;
+        }
+
+        courses.add(courseFromCsvLine(line));
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return courses;
+  }
+
+  /**
+   * Reads the courses.csv file and returns a course based on the specified ID.
+   *
+   * @param id The course id
+   * @return Course with given id (or null)
+   */
+  public Course getCourse(String id) {
+    String filename = getCoursesCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("id,") || line.isEmpty()) {
+          continue;
+        }
+
+        Course course = courseFromCsvLine(line);
+        if (Objects.equals(course.getId(), id)) {
+          return course;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  /**
+   * Reads the courses.csv file and returns a list containing all courses taught by a given faculty
+   * member.
+   *
+   * @param facultyID The Faculty Member's ID
+   * @return courses
+   */
+  public List<Course> getFacultyCourses(String facultyID) {
+    String filename = getCoursesCsvFilename();
+
+    ArrayList<Course> courses = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("id,") || line.isEmpty()) {
+          continue;
+        }
+
+        Course course = courseFromCsvLine(line);
+        if (Objects.equals(course.getFaculty().id, facultyID)) {
+          courses.add(course);
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return courses;
+  }
+
+  /**
+   * Reads the students.csv file and returns a list containing all courses that a student has
+   * enrolled in.
+   *
+   * @param studentID The Student's ID
+   * @return courses
+   */
+  public List<Course> getStudentCourses(String studentID) {
+    String filename = getStudentsCsvFilename();
+
+    ArrayList<Course> courses = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("course_id,") || line.isEmpty()) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        if (parts[1].equals(studentID)) {
+          courses.add(getCourse(parts[0]));
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return courses;
+  }
 
   /**
    * Reads the items.csv file and returns a list containing all items.
@@ -137,91 +276,10 @@ public class Database {
         items.add(itemFromCsvLine(line));
       }
     } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    return items;
-  }
-
-  public static String fetchNewsletterContent(String urlString) throws IOException {
-    URL url = new URL(urlString);
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setRequestMethod("GET");
-
-    StringBuilder content = new StringBuilder();
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        content.append(line);
-      }
-    } finally {
-      connection.disconnect();
-    }
-
-    return content.toString();
-  }
-
-
-  public static List<Newsletter> getNewsletters() {
-    String filename = getNewslettersCsvFilename();
-
-    ArrayList<Newsletter> items = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        // ignore first line
-        if (line.startsWith("id,") || line.isEmpty()) {
-          continue;
-        }
-
-        items.add(NewsFromCsvLine(line));
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    return items;
-  }
-  public static List<Newsletter> getUserSubscription(String id) {
-    String filename = getSubscribersCsvFilename();
-
-    ArrayList<Newsletter> subscriptions = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        // ignore first line
-        if (line.startsWith("newsletter_id,") || line.isEmpty()) {
-          continue;
-        }
-
-        String[] parts = line.split(",");
-        if (!Objects.equals(parts[1], id)) continue;
-
-        subscriptions.add(Database.getNews());
-      }
-    } catch (IOException e) {
       System.err.println(e.getMessage());
     }
 
-    return subscriptions;
-  }
-  public static Newsletter getNews()
-  {
-    String filename = getNewslettersCsvFilename();
-
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.startsWith("id,")) continue;
-
-        Newsletter news = NewsFromCsvLine(line);
-       return news;
-      }
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-    }
-
-    return null;
+    return items;
   }
 
   /**
@@ -356,7 +414,7 @@ public class Database {
         }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println(e.getMessage());
     }
 
     return userMap;
@@ -388,31 +446,6 @@ public class Database {
     return null;
   }
 
-  public ArrayList<String[]> getValidated() {
-    String filename = getValidatedCsvFilename();
-
-    ArrayList<String[]> validList = new ArrayList<String[]>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String[] parts = line.split(",");
-        String userData[] = new String[2];
-
-        if (parts.length >= 2) { // Ensure at least Two columns exist (last name, first name, type)
-          String name = parts[0].trim(); // Name is the first column
-          String type = parts[1].trim(); // Type name is the second column
-          userData[0] = name;
-          userData[1] = type;
-        }
-        validList.add(userData);
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    return validList;
-  }
-
   /**
    * Reads the users.csv file and returns a User with the given email address.
    *
@@ -431,6 +464,88 @@ public class Database {
         if (Objects.equals(user.email, email)) {
           return user;
         }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  public static String fetchNewsletterContent(String urlString) throws IOException {
+    URL url = new URL(urlString);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("GET");
+
+    StringBuilder content = new StringBuilder();
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        content.append(line);
+      }
+    } finally {
+      connection.disconnect();
+    }
+
+    return content.toString();
+  }
+
+  public static List<Newsletter> getNewsletters() {
+    String filename = getNewslettersCsvFilename();
+
+    ArrayList<Newsletter> items = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("id,") || line.isEmpty()) {
+          continue;
+        }
+
+        items.add(newsletterFromCsvLine(line));
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return items;
+  }
+
+  public static List<Newsletter> getUserSubscription(String id) {
+    String filename = getSubscribersCsvFilename();
+
+    ArrayList<Newsletter> subscriptions = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("newsletter_id,") || line.isEmpty()) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        if (!Objects.equals(parts[1], id)) continue;
+
+        subscriptions.add(Database.getNews());
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return subscriptions;
+  }
+
+  public static Newsletter getNews() {
+    String filename = getNewslettersCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("id,")) continue;
+
+        Newsletter news = newsletterFromCsvLine(line);
+        return news;
       }
     } catch (IOException e) {
       System.err.println(e.getMessage());
@@ -467,7 +582,40 @@ public class Database {
       System.err.println(e.getMessage());
     }
     boolean renamed = tempFile.renameTo(new File(filename));
-    System.out.println("UPDATE_User_Verfication: Rename success? " + renamed);
+    System.out.println("UPDATE_USER_VERIFICATION: Rename success? " + renamed);
+  }
+
+  public void updateItemCopies(String itemID, int adjustment) {
+    String filename = getItemsCsvFilename();
+    File tempFile = new File(getItemsCsvFilename() + System.currentTimeMillis());
+
+    // read from original file, write to temp
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(filename));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile, true));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] parts = line.split(",");
+
+        // update permissions
+        if (Objects.equals(parts[0], itemID)) {
+          parts[8] = String.valueOf(Integer.parseInt(parts[8]) + adjustment);
+          line = String.join(",", parts);
+        }
+
+        writer.write(line);
+        writer.newLine();
+      }
+
+      writer.close();
+      reader.close();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+
+    // overwrite original file
+    boolean renamed = tempFile.renameTo(new File(filename));
+    System.out.println("UPDATE_ITEM_PERMISSION: Rename success? " + renamed);
   }
 
   /**
@@ -586,6 +734,11 @@ public class Database {
 
   // helper methods
 
+  private String getCoursesCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/courses.csv";
+  }
+
   /**
    * Gets the absolute path of the items.csv file
    *
@@ -606,10 +759,16 @@ public class Database {
     return path + "/db/rentals.csv";
   }
 
+  private String getStudentsCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/students.csv";
+  }
+
   private static String getNewslettersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/newsletters.csv";
   }
+
   private static String getSubscribersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/subscribers.csv";
@@ -626,27 +785,29 @@ public class Database {
   }
 
   /**
-   * Gets the absolute path of the verified.csv file This contains accepted names in the system for
-   * validation. i.e names connected to our imaginary school
+   * Parses a given line and returns a course
    *
-   * @return filename
+   * @param line A line from courses.csv
+   * @return Course
    */
-  private static String getValidatedCsvFilename() {
-    String path = new File("").getAbsolutePath();
-    return path + "/db/verified.csv";
-  }
-
-  private static Newsletter NewsFromCsvLine(String line) {
+  private static Course courseFromCsvLine(String line) {
     String[] parts = line.split(",");
-    Newsletter news = new NewsletterProxy();
-    news.id = parts[0];
-    news.name = parts[1];
-    news.url = parts[2];
-    news.fee = Double.parseDouble(parts[3]);
 
-    return news;
+    Faculty faculty = (Faculty) getUser(parts[4]);
+    Item textbook = getItem(parts[5]);
+    LocalDate startDate = LocalDate.parse(parts[6]);
+    LocalDate endDate = LocalDate.parse(parts[7]);
+
+    return new Course(
+        parts[0], parts[1], parts[2], parts[3], faculty, textbook, startDate, endDate);
   }
 
+  /**
+   * Parses a given line and returns an item
+   *
+   * @param line A line from items.csv
+   * @return Item
+   */
   private static Item itemFromCsvLine(String line) {
     String[] parts = line.split(",");
     Item item = new Item();
@@ -685,6 +846,23 @@ public class Database {
     return item;
   }
 
+  private static Newsletter newsletterFromCsvLine(String line) {
+    String[] parts = line.split(",");
+    Newsletter news = new NewsletterProxy();
+    news.id = parts[0];
+    news.name = parts[1];
+    news.url = parts[2];
+    news.fee = Double.parseDouble(parts[3]);
+
+    return news;
+  }
+
+  /**
+   * Parses a given line and returns a user
+   *
+   * @param line A line from users.csv
+   * @return User
+   */
   private static User userFromCsvLine(String line) {
     String[] parts = line.split(",");
     return UserFactory.createUser(

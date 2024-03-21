@@ -1,13 +1,14 @@
 package ui;
 
 import java.awt.*;
+
+import sandbox.*;
 import ui.ManagerView;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
-import sandbox.CurrentUser;
-import sandbox.Database;
-import sandbox.LibraryManager;
-import sandbox.User;
 
 /** Class that renders a login dialog. Disposes of itself on close. */
 public class LoginDialog extends JFrame {
@@ -127,14 +128,27 @@ public class LoginDialog extends JFrame {
       return;
     }
 
-    CurrentUser.getUserInstance().setRentedItems(db.getUserRentals(user.id));
+    // auto-return due online items
+    ArrayList<RentedItem> rentals = (ArrayList<RentedItem>) db.getUserRentals(user.id);
+    for (RentedItem rental : rentals) {
+      if (!rental.getItem().location.equalsIgnoreCase("online")) {
+        continue;
+      }
+
+      if (rental.getDueDate().isBefore(LocalDate.now())) {
+        db.deleteRental(rental.getItem().id, rental.getUserID());
+        rentals.remove(rental);
+      }
+    }
+
+    CurrentUser.getUserInstance().setRentedItems(rentals);
 
     switch (user.type.toLowerCase()) {
       case "student":
         new StudentWindow().setVisible(true);
         break;
       case "faculty":
-        new FacultyWindow(user).setVisible(true);
+        new FacultyWindow().setVisible(true);
         break;
       case "non-faculty":
         new NonFacultyWindow(user).setVisible(true);
