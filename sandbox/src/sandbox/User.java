@@ -67,15 +67,22 @@ public abstract class User {
     penalty = 0;
 
     for (RentedItem rental : rentedItems) {
+      if(rental.isLost())
+      {
+        Database.deleteRental(rental.getItem().id,this.id);
+        continue;
+      }
       // count physical items
       if (!rental.getItem().location.equalsIgnoreCase("online")) {
         limit++;
       }
 
-      if (rental.getDueDate().isBefore(LocalDate.now())) {
-        overdue++;
-        penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
+        if (rental.getDueDate().isBefore(LocalDate.now())) {
+          overdue++;
+          penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
+        }
       }
+
     }
   }
-}
+
