@@ -52,16 +52,6 @@ public class StudentWindow extends MainWindow {
     JPanel centerPanel = (JPanel) getContentPane().getComponent(1);
     addTextbookPanel(centerPanel);
 
-    JButton newslettersButton = new JButton("Newsletters");
-    newslettersButton.addActionListener(
-        e -> {
-          // Open the Newsletters window
-          NewslettersWindow newslettersWindow = new NewslettersWindow(StudentWindow.this);
-          newslettersWindow.setVisible(true);
-        });
-
-    // Add the button to the main window
-    centerPanel.add(newslettersButton, BorderLayout.SOUTH);
   }
 
   private void addTextbookPanel(JPanel centerPanel) {

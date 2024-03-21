@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class NewslettersWindow extends StudentWindow{
+public class NewslettersWindow extends JFrame{
     // constants
     protected final User currentUser = CurrentUser.getUserInstance();
     private static final int WIN_WIDTH = 1024;
@@ -19,12 +19,12 @@ public class NewslettersWindow extends StudentWindow{
     private final JTextField searchField = new JTextField(32);
     private JTable table;
     private List<Newsletter> tableItems;
-    private final StudentWindow parent;
+    private final MainWindow parent;
 
     /** Creates the SearchWindow. */
-    public NewslettersWindow(StudentWindow parent) {
+    public NewslettersWindow(MainWindow parent) {
         super();
-
+        setTitle("Newsletters");
 // set attributes
         this.parent = parent;
 

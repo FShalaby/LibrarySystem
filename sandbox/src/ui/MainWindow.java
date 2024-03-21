@@ -145,6 +145,16 @@ public class MainWindow extends JFrame {
     if (currentUser != null) {
       addRentalPanel(centerPanel);
     }
+    JButton newslettersButton = new JButton("Newsletters");
+    newslettersButton.addActionListener(
+            e -> {
+              // Open the Newsletters window
+              NewslettersWindow newslettersWindow = new NewslettersWindow(this);
+              newslettersWindow.setVisible(true);
+            });
+
+    // Add the button to the main window
+    centerPanel.add(newslettersButton, BorderLayout.SOUTH);
 
     // add panel
     return centerPanel;
