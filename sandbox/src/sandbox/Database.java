@@ -282,6 +282,87 @@ public class Database {
     return items;
   }
 
+  public static String fetchNewsletterContent(String urlString) throws IOException {
+    URL url = new URL(urlString);
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("GET");
+
+    StringBuilder content = new StringBuilder();
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        content.append(line);
+      }
+    } finally {
+      connection.disconnect();
+    }
+
+    return content.toString();
+  }
+
+
+  public static List<Newsletter> getNewsletters() {
+    String filename = getNewslettersCsvFilename();
+
+    ArrayList<Newsletter> items = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("id,") || line.isEmpty()) {
+          continue;
+        }
+
+        items.add(NewsFromCsvLine(line));
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return items;
+  }
+  public static List<Newsletter> getUserSubscription(String id) {
+    String filename = getSubscribersCsvFilename();
+
+    ArrayList<Newsletter> subscriptions = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("newsletter_id,") || line.isEmpty()) {
+          continue;
+        }
+
+        String[] parts = line.split(",");
+        if (!Objects.equals(parts[1], id)) continue;
+
+        subscriptions.add(Database.getNews());
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return subscriptions;
+  }
+  public static Newsletter getNews()
+  {
+    String filename = getNewslettersCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("id,")) continue;
+
+        Newsletter news = NewsFromCsvLine(line);
+       return news;
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
   /**
    * Reads the items.csv file and returns an Item with the given ID.
    *
@@ -501,7 +582,7 @@ public class Database {
         // ignore first line
         if (line.startsWith("id,") || line.isEmpty()) {
           continue;
-        }
+        if (line.startsWith("name,") || line.isEmpty()) continue;
 
         items.add(newsletterFromCsvLine(line));
       }
@@ -759,6 +840,7 @@ public class Database {
     return path + "/db/rentals.csv";
   }
 
+
   private String getStudentsCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/students.csv";
@@ -768,7 +850,6 @@ public class Database {
     String path = new File("").getAbsolutePath();
     return path + "/db/newsletters.csv";
   }
-
   private static String getSubscribersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/subscribers.csv";
@@ -808,6 +889,18 @@ public class Database {
    * @param line A line from items.csv
    * @return Item
    */
+  private static Newsletter NewsFromCsvLine(String line) {
+    String[] parts = line.split(",");
+    Newsletter news = new NewsletterProxy();
+    news.id = parts[0];
+    news.name = parts[1];
+    news.url = parts[2];
+    news.fee = Double.parseDouble(parts[3]);
+
+    return news;
+  }
+
+
   private static Item itemFromCsvLine(String line) {
     String[] parts = line.split(",");
     Item item = new Item();
