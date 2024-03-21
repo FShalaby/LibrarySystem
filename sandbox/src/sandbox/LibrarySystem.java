@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class LibrarySystem {
-  private final Database db = Database.getInstance();
+  private static final Database db = Database.getInstance();
   public Item item;
   public User user;
   public Newsletter newsletter;
@@ -153,7 +153,7 @@ public class LibrarySystem {
   }
 
   public void createVirtualCopy(String itemID) {
-   db.updateItemCopies(itemID, 1);
+    db.updateItemCopies(itemID, 1);
   }
 
   public void removeVirtualCopy(String itemID) {
@@ -172,6 +172,28 @@ public class LibrarySystem {
   public static HashMap<String, Item> getItemMap() {
 
     return itemMap;
+  }
+
+  public static String submitItemRequest(ItemRequest request) {
+    for (ItemRequest req : db.getAllRequests()) {
+      if (req.getItemID().equalsIgnoreCase(request.getItemID())) {
+        return "Item already requested.";
+      }
+    }
+
+    db.insertRequest(request);
+    List<ItemRequest> allRequests = db.getAllRequests();
+    for (int i = 0; i < allRequests.size(); i++) {
+      if (allRequests.get(i).getItemID().equalsIgnoreCase(request.getItemID())) {
+        return "Request successful, your request is at position "
+            + (i + 1)
+            + " (of "
+            + allRequests.size()
+            + ")";
+      }
+    }
+
+    return "NOT FOUND";
   }
 
   public String toString() {

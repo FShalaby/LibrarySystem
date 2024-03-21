@@ -98,6 +98,35 @@ public class Database {
     }
   }
 
+  /**
+   * Inserts a new row into requests.csv.
+   *
+   * @param request The ItemRequest to insert
+   */
+  public void insertRequest(ItemRequest request) {
+    String filename = getRequestsCsvFilename();
+
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+      writer.write(
+          String.format(
+              "%s,%s,%s,%s,%s,%s,%s",
+              request.getItemName(),
+              request.getItemType(),
+              request.getItemID(),
+              request.getReason(),
+              request.getAdditionalInfo(),
+              request.getPriority(),
+              request.getRequestDate()));
+      writer.newLine();
+      writer.close();
+
+      System.out.println("Request data has been written to the CSV file.");
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+    }
+  }
+
   public static void insertSubscription(String newsID, String userID) {
     String filename = getSubscribersCsvFilename();
 
@@ -388,6 +417,36 @@ public class Database {
     } catch (IOException e) {
       System.err.println(e.getMessage());
     }
+
+    return rentals;
+  }
+
+  /** TODO */
+  public List<ItemRequest> getAllRequests() {
+    String filename = getRequestsCsvFilename();
+
+    ArrayList<ItemRequest> rentals = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        // ignore first line
+        if (line.startsWith("item_name,") || line.isEmpty()) {
+          continue;
+        }
+
+        rentals.add(requestFromCsvLine(line));
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    rentals.sort((r1, r2) -> {
+      if (r1.getPriority() - r2.getPriority() == 0) {
+       return r1.getRequestDate().compareTo(r2.getRequestDate());
+      }
+
+      return r1.getPriority() - r2.getPriority();
+    });
 
     return rentals;
   }
@@ -784,6 +843,16 @@ public class Database {
     return path + "/db/rentals.csv";
   }
 
+  /**
+   * Gets the absolute path of the requests.csv file
+   *
+   * @return filename
+   */
+  private static String getRequestsCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/requests.csv";
+  }
+
   private String getStudentsCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/students.csv";
@@ -902,5 +971,32 @@ public class Database {
     String[] parts = line.split(",");
     return UserFactory.createUser(
         parts[0], parts[2], parts[3], parts[4], parts[1], Boolean.parseBoolean(parts[5]));
+  }
+
+  /**
+   * Parses a given line and returns an ItemRequest
+   *
+   * @param line A line from requests.csv
+   * @return ItemRequest
+   */
+  private static ItemRequest requestFromCsvLine(String line) {
+    String[] parts = line.split(",");
+
+    ItemType itemType = ItemType.Unknown;
+    for (ItemType i : ItemType.values()) {
+      if (parts[1].equalsIgnoreCase(i.toString())) {
+        itemType = i;
+        break;
+      }
+    }
+
+    return new ItemRequest(
+        parts[0],
+        itemType,
+        parts[2],
+        parts[3],
+        parts[4],
+        Integer.parseInt(parts[5]),
+        LocalDate.parse(parts[6]));
   }
 }
