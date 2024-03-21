@@ -7,6 +7,7 @@ public class LibraryManager extends User{
 	 private Command enableItemCommand;
 	 private Command disableItemCommand;
 	 private Command deleteItemCommand;
+	 private Command returnItemCommand;
 
 	 public LibraryManager(String name, String email, String password, String userType) 
 	 	{
@@ -39,6 +40,9 @@ public class LibraryManager extends User{
 	    public void setDeleteItemCommand(Command deleteItemCommand) {
 	        this.deleteItemCommand = deleteItemCommand;
 	    }
+
+		public void setReturnItemCommand(Command returnItemCommand){this.returnItemCommand = returnItemCommand;}
+
 	    
 	    
 
@@ -57,6 +61,10 @@ public class LibraryManager extends User{
 	    {
 	    	deleteItemCommand.execute();
 	    }
+		public void returnItem(Command command)
+		{
+			returnItemCommand.execute();
+		}
 
 	 public static boolean verify(User user)
 	 {

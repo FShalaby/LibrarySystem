@@ -29,6 +29,7 @@ public class LibrarySystem {
     item.status = ItemStatus.Rented;
     user.addRentedItem(new RentedItem(item, user.id, LocalDate.now().plusDays(30)));
     inventory.put(item.name, item.copies - 1);
+    Database.updateItemCopies(item.id, -1);
 
     LocalDate currentDate = LocalDate.now();
     LocalDate dueDate = currentDate.plusDays(30);

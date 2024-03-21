@@ -2,35 +2,26 @@ package ui;
 
 import javax.swing.*;
 
-import sandbox.LibraryManager;
-import sandbox.PhysicalItem;
-import sandbox.User;
-import sandbox.AddItemCommand;
-import sandbox.Command;
-import sandbox.Database;
-import sandbox.DeleteItemCommand;
-import sandbox.DisableItemCommand;
-import sandbox.EnableItemCommand;
-import sandbox.Item;
-import sandbox.ItemPermission;
-import sandbox.ItemStatus;
-import sandbox.ItemType;
+import sandbox.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ManagerView extends JFrame {
+public class ManagerView extends MainWindow {
     private LibraryManager libraryManager;
 
 
     public ManagerView(LibraryManager manager) {
         setTitle("Library Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(600, 300);
         setLocationRelativeTo(null);
         
         libraryManager = manager;
+        JPanel topPanel = (JPanel) getContentPane().getComponent(0);
+        JPanel topRightPanel = (JPanel) topPanel.getComponent(1);
+        topRightPanel.remove(0);
         
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(5, 1));
@@ -163,6 +154,35 @@ public class ManagerView extends JFrame {
             }
         });
 
+        JButton returnItemButton = new JButton("Return Item");
+        returnItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Handle delete item action
+                String itemId = JOptionPane.showInputDialog(null, "Enter item ID:");
+                String userId = JOptionPane.showInputDialog(null, "Enter user ID:");
+                // Retrieve the Item object based on the ID (you need to implement this)
+                Item item = Database.getItem(itemId);
+                User user = Database.getUser(userId);
+                if (item != null) {
+                    // Create a command instance with the Item object
+                    if(item.copies==20)
+                    {
+                        JOptionPane.showMessageDialog(null, "Can't exceed Item Capacity");
+                        return;
+                    }
+                    Command returnItemCommand = new ReturnItemCommand(item,user);
+                    libraryManager.setReturnItemCommand(returnItemCommand);
+                    // Pass the Item object to the LibraryManager to execute the EnableItemCommand
+                    libraryManager.returnItem(returnItemCommand);
+                    JOptionPane.showMessageDialog(null, "Item Deleted successfully");
+                }else {
+                    JOptionPane.showMessageDialog(null, "Item not found");
+                }
+
+            }
+        });
+
         JButton verifyUserButton = new JButton("Verify User");
         verifyUserButton.addActionListener(new ActionListener() {
             @Override
@@ -193,6 +213,7 @@ public class ManagerView extends JFrame {
         panel.add(enableItemButton);
         panel.add(disableItemButton);
         panel.add(deleteItemButton);
+        panel.add(returnItemButton);
         panel.add(verifyUserButton);
 
         add(panel, BorderLayout.CENTER);

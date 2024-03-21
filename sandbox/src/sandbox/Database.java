@@ -366,7 +366,7 @@ public class Database {
    * @param id The renter's ID
    * @return A list of the user's rented items (<code>Item</code>)
    */
-  public List<RentedItem> getUserRentals(String id) {
+  public static List<RentedItem> getUserRentals(String id) {
     String filename = getRentalsCsvFilename();
 
     ArrayList<RentedItem> rentals = new ArrayList<>();
@@ -605,7 +605,7 @@ public class Database {
     System.out.println("UPDATE_USER_VERIFICATION: Rename success? " + renamed);
   }
 
-  public void updateItemCopies(String itemID, int adjustment) {
+  public static void updateItemCopies(String itemID, int adjustment) {
     String filename = getItemsCsvFilename();
     File tempFile = new File(getItemsCsvFilename() + System.currentTimeMillis());
 
@@ -720,7 +720,7 @@ public class Database {
    * @param itemID The ID of the item.
    * @param userID The ID of the renter.
    */
-  public void deleteRental(String itemID, String userID) {
+  public static void deleteRental(String itemID, String userID) {
     String filename = getRentalsCsvFilename();
     File tempFile = new File(filename + "." + System.currentTimeMillis());
 
