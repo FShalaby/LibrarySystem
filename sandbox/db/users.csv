@@ -1,5 +1,5 @@
 name,id,email,password,type,verified
 test,325c96,test@yorku.ca,12345,Student,true
 manager,421b98,manager@yorku.ca,1111,Manager,true
-verify,687211,verify@yorku.ca,2222,student,true
+verify,687211,verify@yorku.ca,2222,Non-faculty,true
 faculty,6fd709,faculty@yorku.ca,3333,faculty,true
