@@ -3,6 +3,8 @@ package ui;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import sandbox.*;
@@ -47,7 +49,11 @@ public class SearchWindow extends JFrame {
     // recreate parent window from scratch
     if (this.parent instanceof StudentWindow) {
       new StudentWindow().setVisible(true);
-    } else {
+    }else if(this.parent instanceof FacultyWindow)
+    {
+      new FacultyWindow().setVisible(true);
+    }
+    else {
       new MainWindow().setVisible(true);
     }
 
@@ -206,7 +212,9 @@ public class SearchWindow extends JFrame {
     private final Item item;
     private final JTextField bookNameField;
     private final JTextField priceField;
+    private final JTextField totalField;
     private final JComboBox<String> paymentComboBox;
+    private final JComboBox<String> discountComboBox;
 
     public PaymentForm(JFrame parent, Item item) {
       super("Payment Form");
@@ -222,8 +230,17 @@ public class SearchWindow extends JFrame {
       priceField = new JTextField(10);
       priceField.setText(String.valueOf(item.price));
       priceField.setEditable(false);
+
+      JLabel totalLabel = new JLabel("Total:");
+      totalField = new JTextField(10);
+      totalField.setEditable(false);
+
       JLabel paymentLabel = new JLabel("Select Payment Method:");
       paymentComboBox = new JComboBox<>(new String[] {"Debit", "Credit", "Mobile"});
+
+      JLabel discountLabel = new JLabel("Select Discount:");
+      discountComboBox = new JComboBox<>(getAvailableDiscounts(item));
+      discountComboBox.addActionListener(e -> updateTotal());
 
       JButton processPaymentButton = new JButton("Process Payment");
       processPaymentButton.addActionListener(e -> processPayment());
@@ -234,8 +251,12 @@ public class SearchWindow extends JFrame {
       panel.add(bookNameField);
       panel.add(priceLabel);
       panel.add(priceField);
+      panel.add(totalLabel);
+      panel.add(totalField);
       panel.add(paymentLabel);
       panel.add(paymentComboBox);
+      panel.add(discountLabel);
+      panel.add(discountComboBox);
 
       JPanel buttonPanel = new JPanel();
       buttonPanel.add(processPaymentButton);
@@ -246,13 +267,63 @@ public class SearchWindow extends JFrame {
 
       setSize(300, 200);
       setLocationRelativeTo(parent);
+      updateTotal();
     }
 
+    private String[] getAvailableDiscounts(Item item) {
+      List<String> discountOptions = new ArrayList<>();
+      Discount discount = Database.getDiscount(item.id);
+      if (discount == null) {
+        discountOptions.add("None"); // Add "None" if there are no discounts
+      } else {
+        discountOptions.add("None"); // Optionally add a default option
+        // Convert the discount to a string option
+        String discountOption = discount.code + " - " + discount.discount + "%";
+        discountOptions.add(discountOption);
+      }
+      // Convert the list of discount options to an array
+      return discountOptions.toArray(new String[0]);
+    }
+    private void updateTotal() {
+      String selectedDiscountStr = (String) discountComboBox.getSelectedItem();
+      int selectedDiscount = 0;
+      if (!selectedDiscountStr.equalsIgnoreCase("none")) {
+        selectedDiscount = extractDiscount(selectedDiscountStr);
+      }
+
+      double price = Double.parseDouble(priceField.getText());
+
+      // Update the total field with the discounted price if applicable
+      if (selectedDiscount != 0) {
+        double discountedPrice = calculateDiscount(price, selectedDiscount);
+        totalField.setText(String.format("%.2f", discountedPrice));
+      } else {
+        // No discount selected, display the original price
+        totalField.setText(String.format("%.2f", price));
+      }
+    }
     private void processPayment() {
       // Retrieve payment information from the form
       String bookName = bookNameField.getText();
       double price = Double.parseDouble(priceField.getText());
       String selectedPayment = (String) paymentComboBox.getSelectedItem();
+      String selectedDiscountStr = (String) discountComboBox.getSelectedItem();
+      int selectedDiscount = 0;
+      if(!selectedDiscountStr.equalsIgnoreCase("none")) {
+        selectedDiscount = extractDiscount(selectedDiscountStr);
+      }
+
+      // Update the total field with the discounted price if applicable
+//      if (selectedDiscount != 0) {
+//        double discountedPrice = calculateDiscount(price, selectedDiscount);
+//        totalField.setText(String.format("%.2f", discountedPrice));
+//      } else {
+//        // No discount selected, display the original price
+//        totalField.setText(String.format("%.2f", price));
+//      }
+
+
+
       if (selectedPayment != null) {
         Payment payment = null;
         // Call BuyItem method with the appropriate parameters
@@ -271,7 +342,12 @@ public class SearchWindow extends JFrame {
             break;
         }
         if (payment != null) {
-          librarySystem.BuyItem(item, payment, currentUser);
+          if (selectedDiscount != 0) {
+            double discountedPrice = calculateDiscount(price, selectedDiscount);
+            librarySystem.BuyItem(item, payment, currentUser, discountedPrice);
+          } else {
+            librarySystem.BuyItem(item, payment, currentUser, 0);
+          }
           JOptionPane.showMessageDialog(this, "Item Purchased Successfully");
         } else {
           JOptionPane.showMessageDialog(this, "Failed to process payment. Please try again.");
@@ -280,10 +356,27 @@ public class SearchWindow extends JFrame {
         JOptionPane.showMessageDialog(this, "Please select a payment method");
       }
 
+
       // Close the payment form
       dispose();
     }
+    private int extractDiscount(String discountStr) {
+      // Split the string by spaces and hyphens
+      String[] parts = discountStr.split("\\s*-\\s*");
+      // Extract the numeric part and remove the percentage sign
+      String numericPart = parts[1].replaceAll("[^0-9]", "");
+      // Parse the numeric part as an integer
+      return Integer.parseInt(numericPart);
+    }
+    private double calculateDiscount(double price, int selectedDiscount)
+    {
+      double discountFraction = (double) selectedDiscount / 100.0;
+      // Calculate the discounted price
+      double discountedPrice = price * (1- discountFraction);
+      return Double.parseDouble(String.format("%.2f", discountedPrice));
+    }
   }
+
 
   private void rentAction() {
     int selectedRow = this.table.getSelectedRow();

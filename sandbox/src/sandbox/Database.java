@@ -308,6 +308,26 @@ public class Database {
     return null;
   }
 
+  public static Discount getDiscount(String id) {
+    String filename = getDiscountsCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("item_id,")) continue;
+
+        Discount discount = discountFromCsvLine(line);
+        if (Objects.equals(discount.item_id, id)) {
+          return discount;
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
   /**
    * Reads the rentals.csv file and returns a list containing all rentals.
    *
@@ -749,6 +769,11 @@ public class Database {
     return path + "/db/items.csv";
   }
 
+  private static String getDiscountsCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/discounts.csv";
+  }
+
   /**
    * Gets the absolute path of the rentals.csv file
    *
@@ -800,6 +825,16 @@ public class Database {
 
     return new Course(
         parts[0], parts[1], parts[2], parts[3], faculty, textbook, startDate, endDate);
+  }
+
+  private static Discount discountFromCsvLine(String line) {
+    String[] parts = line.split(",");
+    Discount discount = new Discount();
+    discount.item_id = parts[0];
+    discount.code = parts[1];
+    discount.discount = Integer.parseInt(parts[2]);
+
+    return discount;
   }
 
   /**

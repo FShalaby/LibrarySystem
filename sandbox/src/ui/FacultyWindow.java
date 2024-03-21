@@ -10,6 +10,8 @@ public class FacultyWindow extends MainWindow {
   public FacultyWindow() {
     super();
     setTitle("Faculty Main Window");
+    this.searchWindow.dispose();
+    this.searchWindow = new SearchWindow(this);
 
     if (currentUser != null) {
       Database db = Database.getInstance();
