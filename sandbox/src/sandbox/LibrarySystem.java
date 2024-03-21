@@ -127,14 +127,19 @@ public class LibrarySystem {
   //	    }
   //	}
 
-  public String BuyItem(Item item, Payment payment, User user) {
+  public String BuyItem(Item item, Payment payment, User user, double discountedPrice) {
     // check first permission bit (purchasing)
     if ((((item.permission.getValue() >> 1) & 1) == 1) && item.copies > 0) {
-      // Process the payment
-      boolean paymentProcessed = payment.processPayment(item.price);
+      // Process the payment with the discounted price
+      boolean paymentProcessed;
+      if (discountedPrice != 0) {
+        paymentProcessed = payment.processPayment(discountedPrice);
+      } else {
+        // Process the payment with the original price if discounted price is zero
+        paymentProcessed = payment.processPayment(item.price);
+      }
 
       if (paymentProcessed) {
-        //		            user.rented.add(item);
         item.status = ItemStatus.Purchased;
         inventory.put(item.name, item.copies - 1);
         return "Item " + item.name + " purchased successfully.";
