@@ -15,9 +15,10 @@ public abstract class User {
   public boolean isVerified;
   protected int limit = 0;
   protected int overdue = 0;
+  protected int lost = 0;
   protected double penalty = 0.0;
   private List<RentedItem> rentedItems = new ArrayList<>();
-  public HashMap<Newsletter, Boolean> subscriptions = new HashMap<Newsletter,Boolean>();
+  public HashMap<Newsletter, Boolean> subscriptions = new HashMap<>();
 
   // Generate random ID()
   protected static String generateRandomID() {
@@ -47,6 +48,10 @@ public abstract class User {
     return overdue;
   }
 
+  public int getLost() {
+    return lost;
+  }
+
   public List<RentedItem> getRentedItems() {
     return rentedItems;
   }
@@ -64,25 +69,26 @@ public abstract class User {
     this.rentedItems = rentedItems;
     limit = 0;
     overdue = 0;
+    lost = 0;
     penalty = 0;
 
     for (RentedItem rental : rentedItems) {
-      if(rental.isLost())
-      {
-        Database.deleteRental(rental.getItem().id,this.id);
+      // lost items do not count towards limit and have their own penalty
+      if (rental.isLost()) {
+        penalty += rental.getItem().price + 7.5; // item price + 15-day penalty
+        lost++;
         continue;
       }
+
       // count physical items
       if (!rental.getItem().location.equalsIgnoreCase("online")) {
         limit++;
       }
 
-        if (rental.getDueDate().isBefore(LocalDate.now())) {
-          overdue++;
-          penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
-        }
+      if (rental.getDueDate().isBefore(LocalDate.now())) {
+        overdue++;
+        penalty += LocalDate.now().compareTo(rental.getDueDate()) * 0.5;
       }
-
     }
   }
-
+}

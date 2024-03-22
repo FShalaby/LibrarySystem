@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
 import sandbox.*;
 
 /** The main entrypoint for the GUI. */
@@ -64,8 +63,8 @@ public class MainWindow extends JFrame {
   public void showSearchWindow() {
     this.searchWindow.setVisible(true);
   }
-  public void showSubscribed()
-  {
+
+  public void showSubscribed() {
     this.subscribedWindow.setVisible(true);
   }
 
@@ -90,12 +89,12 @@ public class MainWindow extends JFrame {
     greeter.setBorder(new EmptyBorder(5, 0, 5, 0));
     leftPanel.add(greeter);
 
-    if (currentUser != null && currentUser.getOverdue() > 0) {
+    if (currentUser != null && (currentUser.getOverdue() > 0 || currentUser.getPenalty() > 0)) {
       JLabel overdueLabel =
           new JLabel(
               String.format(
-                  "%d items overdue ($%.2f penalty)",
-                  currentUser.getOverdue(), currentUser.getPenalty()));
+                  "$%.2f penalty (%d overdue, %d lost)",
+                  currentUser.getPenalty(), currentUser.getOverdue(), currentUser.getLost()));
       overdueLabel.setBorder(new EmptyBorder(5, 5, 5, 0));
       overdueLabel.setForeground(Color.RED);
       leftPanel.add(overdueLabel);
@@ -106,16 +105,17 @@ public class MainWindow extends JFrame {
     searchButton.addActionListener(e -> showSearchWindow());
     rightPanel.add(searchButton);
 
-    if(currentUser!= null) {
+    if (currentUser != null) {
       subscriptions = Database.getUserSubscription(currentUser.id);
       boolean check = false;
       for (Newsletter i : subscriptions) {
         if (subscriptions.contains(i)) {
           check = true;
+          break;
         }
       }
 
-      if (check == true) {
+      if (check) {
         JButton viewNews = new JButton("View News");
         viewNews.addActionListener(e -> showSubscribed());
         rightPanel.add(viewNews);
@@ -147,11 +147,11 @@ public class MainWindow extends JFrame {
     }
     JButton newslettersButton = new JButton("Newsletters");
     newslettersButton.addActionListener(
-            e -> {
-              // Open the Newsletters window
-              NewslettersWindow newslettersWindow = new NewslettersWindow(this);
-              newslettersWindow.setVisible(true);
-            });
+        e -> {
+          // Open the Newsletters window
+          NewslettersWindow newslettersWindow = new NewslettersWindow(this);
+          newslettersWindow.setVisible(true);
+        });
 
     // Add the button to the main window
     centerPanel.add(newslettersButton, BorderLayout.SOUTH);
@@ -180,7 +180,7 @@ public class MainWindow extends JFrame {
 
     JPanel cardPanel = new JPanel();
     for (RentedItem book : currentUser.getRentedItems()) {
-      if (!book.getItem().location.equalsIgnoreCase("online")) {
+      if (!book.isLost() && !book.getItem().location.equalsIgnoreCase("online")) {
         JPanel bookPanel = new RentedBookCard(book);
         cardPanel.add(bookPanel);
       }
