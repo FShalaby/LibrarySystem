@@ -15,7 +15,6 @@ public class Item {
   public String category;
   public int copies;
   public LocalDate dueDate;
-  public boolean isLost = false;
 
   public Item() {}
 

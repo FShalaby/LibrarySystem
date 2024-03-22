@@ -46,11 +46,6 @@ public class LibrarySystem {
       return "Item " + item.name + " rented successfully. Overdue fee: $" + fine;
     }
 
-    // Check if it's been more than 15 days
-    if (currentDate.isAfter(dueDate.plusDays(15))) {
-      item.isLost = true;
-    }
-
     Database.insertRental(item.id, user.id);
     return "Item " + item.name + " rented successfully.";
   }
@@ -108,16 +103,6 @@ public class LibrarySystem {
     CategoryStrategy categoryStrategy = new CategoryStrategy();
     return categoryStrategy.search(category);
   }
-
-  //	public List<Item> displayRecommendations(List<Item> recommendations)
-  //	{
-  //		if (recommendations.isEmpty()) {
-  //	       return null;
-  //	    } else {
-  //
-  //	       return recommendations; // return the list
-  //	    }
-  //	}
 
   public String BuyItem(Item item, Payment payment, User user, double discountedPrice) {
     // check first permission bit (purchasing)

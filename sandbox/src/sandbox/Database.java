@@ -35,7 +35,7 @@ public class Database {
       writer.newLine();
       writer.write(
           String.format(
-              "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%b",
+              "%s,%s,%s,%d,%.2f,%d,%d,%s,%d",
               item.id,
               item.name,
               item.location,
@@ -44,8 +44,7 @@ public class Database {
               item.status.getValue(),
               item.permission.getValue(),
               item.category,
-              item.copies,
-              item.isLost));
+              item.copies));
       writer.close();
 
       System.out.println("Item data has been written to the CSV file.");
@@ -675,7 +674,7 @@ public class Database {
       System.err.println(e.getMessage());
     }
 
-    textbooks.sort((t1, t2) -> t2.edition - t1.edition );
+    textbooks.sort((t1, t2) -> t2.edition - t1.edition);
     return textbooks;
   }
 
@@ -1000,7 +999,6 @@ public class Database {
             permission,
             parts[7],
             Integer.parseInt(parts[8]));
-    item.isLost = Boolean.parseBoolean(parts[9]);
 
     return item;
   }

@@ -15,7 +15,6 @@ public class Textbook extends Item {
         item.permission,
         item.category,
         item.copies);
-    this.isLost = item.isLost;
 
     this.groupID = groupID;
     this.edition = edition;
