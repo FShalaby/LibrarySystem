@@ -131,7 +131,7 @@ public class LoginDialog extends JFrame {
     // auto-return due online items
     ArrayList<RentedItem> rentals = (ArrayList<RentedItem>) db.getUserRentals(user.id);
     for (RentedItem rental : rentals) {
-      if (!rental.getItem().location.equalsIgnoreCase("online")) {
+      if (rental.getItem() != null && !rental.getItem().location.equalsIgnoreCase("online")) {
         continue;
       }
 
