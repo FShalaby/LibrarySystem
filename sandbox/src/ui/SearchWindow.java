@@ -3,8 +3,6 @@ package ui;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import sandbox.*;
@@ -171,24 +169,31 @@ public class SearchWindow extends JFrame {
 
     // Call the searchItem method in LibrarySystem
     Item foundItem = librarySystem.searchItem(query);
-    // Handle the foundItem as needed
-    if (foundItem != null) {
-      // Item found, do something
-      List<Item> recommendations = librarySystem.getRecommendations(foundItem.category);
 
-      List<Item> results = new ArrayList<>();
-      results.add(foundItem);
-      results.addAll(recommendations);
-      this.tableItems = results;
-      table.setModel(new ItemTableModel(this.tableItems));
-
-      JOptionPane.showMessageDialog(this, "Item Found: " + foundItem.name);
-    } else {
-      // Item not found, display a message
+    // Item not found, display a message
+    if (foundItem == null) {
       this.tableItems = db.getAllItems();
       table.setModel(new ItemTableModel(this.tableItems));
       JOptionPane.showMessageDialog(this, "Item not found.");
+      return;
     }
+
+    // Item found, do something
+    List<Item> recommendations = librarySystem.getRecommendations(foundItem.category);
+
+    // create list containing found item and recommendations
+    List<Item> results = new ArrayList<>();
+    results.add(foundItem);
+
+    // remove found item from recommendations
+    recommendations.remove(foundItem);
+    results.addAll(recommendations);
+
+    // set table
+    this.tableItems = results;
+    table.setModel(new ItemTableModel(this.tableItems));
+
+    JOptionPane.showMessageDialog(this, "Item Found: " + foundItem.name);
   }
 
   private void purchaseAction() {
@@ -291,6 +296,7 @@ public class SearchWindow extends JFrame {
       // Convert the list of discount options to an array
       return discountOptions.toArray(new String[0]);
     }
+
     private void updateTotal() {
       String selectedDiscountStr = (String) discountComboBox.getSelectedItem();
       int selectedDiscount = 0;
@@ -309,6 +315,7 @@ public class SearchWindow extends JFrame {
         totalField.setText(String.format("%.2f", price));
       }
     }
+
     private void processPayment() {
       // Retrieve payment information from the form
       String bookName = bookNameField.getText();
@@ -316,20 +323,18 @@ public class SearchWindow extends JFrame {
       String selectedPayment = (String) paymentComboBox.getSelectedItem();
       String selectedDiscountStr = (String) discountComboBox.getSelectedItem();
       int selectedDiscount = 0;
-      if(!selectedDiscountStr.equalsIgnoreCase("none")) {
+      if (!selectedDiscountStr.equalsIgnoreCase("none")) {
         selectedDiscount = extractDiscount(selectedDiscountStr);
       }
 
       // Update the total field with the discounted price if applicable
-//      if (selectedDiscount != 0) {
-//        double discountedPrice = calculateDiscount(price, selectedDiscount);
-//        totalField.setText(String.format("%.2f", discountedPrice));
-//      } else {
-//        // No discount selected, display the original price
-//        totalField.setText(String.format("%.2f", price));
-//      }
-
-
+      //      if (selectedDiscount != 0) {
+      //        double discountedPrice = calculateDiscount(price, selectedDiscount);
+      //        totalField.setText(String.format("%.2f", discountedPrice));
+      //      } else {
+      //        // No discount selected, display the original price
+      //        totalField.setText(String.format("%.2f", price));
+      //      }
 
       if (selectedPayment != null) {
         Payment payment = null;
@@ -363,10 +368,10 @@ public class SearchWindow extends JFrame {
         JOptionPane.showMessageDialog(this, "Please select a payment method");
       }
 
-
       // Close the payment form
       dispose();
     }
+
     private int extractDiscount(String discountStr) {
       // Split the string by spaces and hyphens
       String[] parts = discountStr.split("\\s*-\\s*");
@@ -375,15 +380,14 @@ public class SearchWindow extends JFrame {
       // Parse the numeric part as an integer
       return Integer.parseInt(numericPart);
     }
-    private double calculateDiscount(double price, int selectedDiscount)
-    {
+
+    private double calculateDiscount(double price, int selectedDiscount) {
       double discountFraction = (double) selectedDiscount / 100.0;
       // Calculate the discounted price
-      double discountedPrice = price * (1- discountFraction);
+      double discountedPrice = price * (1 - discountFraction);
       return Double.parseDouble(String.format("%.2f", discountedPrice));
     }
   }
-
 
   private void rentAction() {
     int selectedRow = this.table.getSelectedRow();

@@ -1,6 +1,7 @@
 package sandbox;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Item {
@@ -43,5 +44,14 @@ public class Item {
     String uuid = UUID.randomUUID().toString();
     // Extract the first 18 characters
     return uuid.substring(0, 18);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Item) {
+      return Objects.equals(this.id, ((Item) o).id);
+    }
+
+    return Objects.equals(this, o);
   }
 }
