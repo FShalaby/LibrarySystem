@@ -1,5 +1,7 @@
 name,id,email,password,type,verified
-test,325c96,test@yorku.ca,12345,Student,true
-manager,421b98,manager@yorku.ca,1111,Manager,true
+Student,325c96,student@yorku.ca,12345678,Student,true
+Manager,421b98,manager@yorku.ca,12345678,Manager,true
 verify,687211,verify@yorku.ca,2222,Non-faculty,true
-faculty,6fd709,faculty@yorku.ca,3333,faculty,true
+Professor,6fd709,prof@yorku.ca,12345678,faculty,true
+Muhammad Ali Kermali,340d07,kmali@my.yorku.ca,Kmali0911@,student,true
+Visitor,d165df,visitor@yorku.ca,Visitor123@,visitor,true
