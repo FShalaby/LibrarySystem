@@ -119,6 +119,7 @@ public class LibrarySystem {
       if (paymentProcessed) {
         item.status = ItemStatus.Purchased;
         inventory.put(item.name, item.copies - 1);
+        Database.updateItemCopies(item.id, -1);
         return "Item " + item.name + " purchased successfully.";
       } else {
         return "Payment processing failed for item " + item.name + ".";
