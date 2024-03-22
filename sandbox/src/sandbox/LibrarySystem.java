@@ -59,16 +59,7 @@ public class LibrarySystem {
     String lowercaseName = name.toLowerCase(); // Convert search query to lowercase
     List<Item> items = db.getAllItems();
 
-    // first check inventory
-    for (String itemName : inventory.keySet()) {
-      String lowercaseItemName = item.name.toLowerCase(); // Convert item name to lowercase
-      if (lowercaseItemName.equals(lowercaseName)) {
-        return item; // Return the item if found
-      }
-    }
-
     Item item = null;
-    // check db if inventory does not have item
     for (Item i : items) {
       // prioritize exact match
       if (Objects.equals(lowercaseName, i.name.toLowerCase())) {
