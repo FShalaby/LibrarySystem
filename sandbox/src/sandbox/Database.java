@@ -321,7 +321,7 @@ public class Database {
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
       String line;
       while ((line = reader.readLine()) != null) {
-        if (line.startsWith("id,")) continue;
+        if (line.startsWith("id,") || line.isEmpty()) continue;
 
         Item item = itemFromCsvLine(line);
         if (Objects.equals(item.id, id)) {
