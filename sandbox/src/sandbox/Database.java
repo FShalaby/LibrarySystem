@@ -35,7 +35,7 @@ public class Database {
       writer.newLine();
       writer.write(
           String.format(
-              "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%s,%b",
+              "%s,%s,%s,%d,%.2f,%d,%d,%s,%d,%b",
               item.id,
               item.name,
               item.location,
@@ -45,7 +45,6 @@ public class Database {
               item.permission.getValue(),
               item.category,
               item.copies,
-              item.dueDate,
               item.isLost));
       writer.close();
 
@@ -440,13 +439,14 @@ public class Database {
       System.err.println(e.getMessage());
     }
 
-    rentals.sort((r1, r2) -> {
-      if (r1.getPriority() - r2.getPriority() == 0) {
-       return r1.getRequestDate().compareTo(r2.getRequestDate());
-      }
+    rentals.sort(
+        (r1, r2) -> {
+          if (r1.getPriority() - r2.getPriority() == 0) {
+            return r1.getRequestDate().compareTo(r2.getRequestDate());
+          }
 
-      return r1.getPriority() - r2.getPriority();
-    });
+          return r1.getPriority() - r2.getPriority();
+        });
 
     return rentals;
   }
@@ -631,6 +631,52 @@ public class Database {
     }
 
     return null;
+  }
+
+  public Textbook getTextbook(String id) {
+    String filename = getTextbookCsvFilename();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("group_id,") || line.isEmpty()) continue;
+
+        String[] parts = line.split(",");
+        if (parts[1].equalsIgnoreCase(id)) {
+          return new Textbook(getItem(id), parts[0], Integer.parseInt(parts[2]));
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    return null;
+  }
+
+  public List<Textbook> getTextbooksByGroup(String groupID) {
+    String filename = getTextbookCsvFilename();
+
+    ArrayList<Textbook> textbooks = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.startsWith("group_id,") || line.isEmpty()) continue;
+
+        String[] parts = line.split(",");
+        if (!parts[0].equalsIgnoreCase(groupID)) continue;
+
+        Item item = getItem(parts[1]);
+        textbooks.add(
+            item == null
+                ? new Textbook(parts[0], Integer.parseInt(parts[2]))
+                : new Textbook(item, parts[0], Integer.parseInt(parts[2])));
+      }
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+
+    textbooks.sort((t1, t2) -> t2.edition - t1.edition );
+    return textbooks;
   }
 
   // update methods
@@ -858,6 +904,11 @@ public class Database {
     return path + "/db/students.csv";
   }
 
+  private String getTextbookCsvFilename() {
+    String path = new File("").getAbsolutePath();
+    return path + "/db/textbooks.csv";
+  }
+
   private static String getNewslettersCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/newsletters.csv";
@@ -884,11 +935,11 @@ public class Database {
    * @param line A line from courses.csv
    * @return Course
    */
-  private static Course courseFromCsvLine(String line) {
+  private Course courseFromCsvLine(String line) {
     String[] parts = line.split(",");
 
     Faculty faculty = (Faculty) getUser(parts[4]);
-    Item textbook = getItem(parts[5]);
+    Textbook textbook = getTextbook(parts[5]);
     LocalDate startDate = LocalDate.parse(parts[6]);
     LocalDate endDate = LocalDate.parse(parts[7]);
 
@@ -914,37 +965,41 @@ public class Database {
    */
   private static Item itemFromCsvLine(String line) {
     String[] parts = line.split(",");
-    Item item = new Item();
-    item.id = parts[0];
-    item.name = parts[1];
-    item.location = parts[2];
-    item.type = ItemType.Unknown;
+    ItemType type = ItemType.Unknown;
     for (ItemType i : ItemType.values()) {
       if (i.getValue() == Integer.parseInt(parts[3])) {
-        item.type = i;
+        type = i;
         break;
       }
     }
 
-    item.price = Double.parseDouble(parts[4]);
-    item.status = ItemStatus.Unknown;
+    ItemStatus status = ItemStatus.Unknown;
     for (ItemStatus i : ItemStatus.values()) {
       if (i.getValue() == Integer.parseInt(parts[5])) {
-        item.status = i;
+        status = i;
         break;
       }
     }
 
-    item.permission = ItemPermission.Disabled;
+    ItemPermission permission = ItemPermission.Disabled;
     for (ItemPermission i : ItemPermission.values()) {
       if (i.getValue() == Integer.parseInt(parts[6])) {
-        item.permission = i;
+        permission = i;
         break;
       }
     }
 
-    item.category = parts[7];
-    item.copies = Integer.parseInt(parts[8]);
+    Item item =
+        new Item(
+            parts[0],
+            parts[1],
+            parts[2],
+            type,
+            Double.parseDouble(parts[4]),
+            status,
+            permission,
+            parts[7],
+            Integer.parseInt(parts[8]));
     item.isLost = Boolean.parseBoolean(parts[9]);
 
     return item;

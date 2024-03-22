@@ -196,6 +196,33 @@ public class LibrarySystem {
     return "NOT FOUND";
   }
 
+  public static Textbook getLatestTextbook(Course course) {
+    List<Textbook> textbooksByGroup = db.getTextbooksByGroup(course.getTextbook().groupID);
+    return textbooksByGroup.get(0);
+  }
+
+  public static String checkUnavailableNewTextbooks() {
+    StringBuilder builder = new StringBuilder();
+    List<Course> courses = db.getAllCourses();
+    for (Course c : courses) {
+      if (c.getEndDate().isBefore(LocalDate.now())) continue;
+
+      Textbook latest = getLatestTextbook(c);
+
+      // newer version exists but not available
+      if (latest.id == null || latest.id.isEmpty()) {
+        builder
+            .append("Newer edition of ")
+            .append(c.getTextbook().name)
+            .append(" exists for ")
+            .append(c.getName())
+            .append(" but is not yet available at the library.\n");
+      }
+    }
+
+    return builder.toString();
+  }
+
   public String toString() {
     return "Name: "
         + item.name

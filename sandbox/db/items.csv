@@ -1,4 +1,5 @@
 id,name,location,type,price,status,permission,category,copies,isLost
 9780201633610,Design Patterns: Elements of Reusable Object-Oriented Software,Scott Library,3,0.00,0,1,Programming,20,false
 9780241341650,Nineteen Eighty-Four,RHPL,0,13.29,0,3,Fiction,20,false
+9780201633610nline,Design Patterns: Elements of Reusable Object-Oriented Software,online,3,0.00,0,1,Programming,20,false
 c8ceaf9a-a541-4acb,buy,scott,2,20.00,0,3,Programming,20,null,false

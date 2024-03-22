@@ -16,6 +16,29 @@ public class Item {
   public LocalDate dueDate;
   public boolean isLost = false;
 
+  public Item() {}
+
+  public Item(
+      String id,
+      String name,
+      String location,
+      ItemType type,
+      Double price,
+      ItemStatus status,
+      ItemPermission permission,
+      String category,
+      int copies) {
+    this.id = id;
+    this.name = name;
+    this.location = location;
+    this.type = type;
+    this.price = price;
+    this.status = status;
+    this.permission = permission;
+    this.category = category;
+    this.copies = copies;
+  }
+
   public String generateUniqueID() {
     String uuid = UUID.randomUUID().toString();
     // Extract the first 18 characters
