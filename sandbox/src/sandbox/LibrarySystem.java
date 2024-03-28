@@ -104,7 +104,7 @@ public class LibrarySystem {
     return categoryStrategy.search(category);
   }
 
-  public String BuyItem(Item item, Payment payment, User user, double discountedPrice) {
+  public static String BuyItem(Item item, Payment payment, User user, double discountedPrice) {
     // check first permission bit (purchasing)
     if ((((item.permission.getValue() >> 1) & 1) == 1) && item.copies > 0) {
       // Process the payment with the discounted price

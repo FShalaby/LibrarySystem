@@ -5,3 +5,19 @@ id,name,location,type,price,status,permission,category,copies
 c8ceaf9a,National Geographic Magazine,Scott Library,1,20.00,0,3,Nature,19
 9780262033848,Introduction to Algorithms (3rd Edition),online,3,150.00,0,3,Programming,20
 9780241341651,Special CD,Scott Library,2,30.00,0,3,Really Cool,19
+
+98092451-b13b-45ff,Book,location,0,10.00,0,1,category,20
+
+43183bd7-900a-447d,Book,location,0,10.00,0,1,category,20
+
+82351859-cdc2-415f,Book,location,0,10.00,0,1,category,20
+
+11c1b8de-4d93-4f9b,Book,location,0,10.00,0,1,category,20
+
+19631d78-71aa-4ffb,Book,location,0,10.00,0,1,category,20
+
+40e7c678-9f7e-4fac,Book,location,0,10.00,0,1,category,20
+
+2d665514-8778-4177,Book,location,0,10.00,0,1,category,20
+
+c1b399c9-f58e-464c,Book,location,0,10.00,0,1,category,20

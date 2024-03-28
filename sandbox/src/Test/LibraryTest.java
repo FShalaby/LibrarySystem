@@ -205,4 +205,141 @@ public class LibraryTest {
         assertTrue(result);
         assertFalse(user.subscriptions.get(newsletter));
     }
+
+    @Test
+    public void testBuyItem() {
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", true);
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.RentableAndPurchasable, "category");
+        Payment payment = new MobileWalletPayment();
+
+        // Call the method under test
+        String result = LibrarySystem.BuyItem(item, payment, user, 0);
+
+        // Assert the result
+        assertEquals("Item Book purchased successfully.", result);
+
+    }
+
+    @Test
+    public void testBuyItemWithDiscount() {
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", true);
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.RentableAndPurchasable, "category");
+        Payment payment = new MobileWalletPayment();
+
+        // Call the method under test
+        String result = LibrarySystem.BuyItem(item, payment, user, 10);
+
+        // Assert the result
+        assertEquals("Item Book purchased successfully.", result);
+
+    }
+
+    @Test
+    public void testBuyItemNotPurchasable() {
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", true);
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+        Payment payment = new MobileWalletPayment();
+
+        // Call the method under test
+        String result = LibrarySystem.BuyItem(item, payment, user, 0);
+
+        // Assert the result
+        assertEquals("Sorry, item Book cannot be purchased", result);
+
+    }
+    @Test
+    public void testAddItemToLibrary() {
+        // Create a LibraryManager instance
+        LibraryManager manager = new LibraryManager("John Doe", "john@example.com", "password", "manager");
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+
+        // Create a mock command for adding an item
+        Command addItemCommand = new AddItemCommand(item);
+
+        // Set the command for adding an item
+        manager.setAddItemCommand(addItemCommand);
+
+        // Call the method under test
+        manager.addItemToLibrary(addItemCommand);
+
+        // Assert the result if needed
+        assertTrue(LibrarySystem.inventory.containsKey(item.name));
+    }
+
+    @Test
+    public void testEnableItemForRenting() {
+        // Similar approach as above
+        LibraryManager manager = new LibraryManager("John Doe", "john@example.com", "password", "manager");
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Disabled, "category");
+
+        // Create a mock command for adding an item
+        Command enableItemCommand = new EnableItemCommand(item);
+
+        // Set the command for adding an item
+        manager.setEnableItemCommand(enableItemCommand);
+
+        // Call the method under test
+        manager.enableItemForRenting(enableItemCommand);
+
+        assertEquals(ItemPermission.Rentable, item.permission);
+    }
+
+    @Test
+    public void testDisableItemForRenting() {
+        // Similar approach as above
+        LibraryManager manager = new LibraryManager("John Doe", "john@example.com", "password", "manager");
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+
+        Command disableItemCommand = new DisableItemCommand(item);
+
+        manager.setDisableItemCommand(disableItemCommand);
+
+        manager.disableItemForRenting(disableItemCommand);
+
+        assertEquals(ItemPermission.Disabled, item.permission);
+    }
+
+    @Test
+    public void testDeleteItem() {
+        // Similar approach as above
+        LibraryManager manager = new LibraryManager("John Doe", "john@example.com", "password", "manager");
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+
+        Command deleteItemCommand = new DeleteItemCommand(item);
+
+        manager.setDeleteItemCommand(deleteItemCommand);
+
+        manager.deleteItem(deleteItemCommand);
+
+        assertFalse(LibrarySystem.inventory.containsKey(item.name));
+
+    }
+
+    @Test
+    public void testReturnItem() {
+        // Similar approach as above
+        LibraryManager manager = new LibraryManager("John Doe", "john@example.com", "password", "manager");
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", true);
+
+        Command returnItemCommand = new ReturnItemCommand(item, user);
+
+        manager.setReturnItemCommand(returnItemCommand);
+
+        manager.returnItem(returnItemCommand);
+
+        assertEquals(item.copies + 1, LibrarySystem.inventory.get(item.name).intValue());
+    }
+
+    @Test
+    public void testVerify() {
+        // Create a user
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", false);
+
+        // Call the static method verify from LibraryManager class
+        boolean verified = LibraryManager.verify(user);
+
+        // Assert the result
+        assertTrue(verified);
+    }
 }
