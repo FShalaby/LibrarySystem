@@ -39,6 +39,9 @@ public abstract class User {
   public double getPenalty() {
     return penalty;
   }
+  public String getPassword() {
+    return pw;
+  }
 
   public int getLimit() {
     return limit;
