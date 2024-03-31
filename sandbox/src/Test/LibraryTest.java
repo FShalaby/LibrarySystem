@@ -5,6 +5,7 @@ import sandbox.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+
 import java.time.LocalDate;
 
 public class LibraryTest {
@@ -342,4 +343,158 @@ public class LibraryTest {
         // Assert the result
         assertTrue(verified);
     }
+    @Test
+    public void testSetAndGetUserInstance() {
+        // Creating a user instance
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", false);
+
+        // Setting the user instance using setUserInstance method
+        CurrentUser.setUserInstance(user);
+
+        // Getting the user instance using getUserInstance method
+        User retrievedUser = CurrentUser.getUserInstance();
+
+        // Asserting that the retrieved user instance is the same as the one set
+        assertEquals(user, retrievedUser);
+    }
+
+    @Test
+    public void testSetNullUserInstance() {
+        // Setting the user instance to null using setUserInstance method
+        CurrentUser.setUserInstance(null);
+
+        // Getting the user instance using getUserInstance method
+        User retrievedUser = CurrentUser.getUserInstance();
+
+        // Asserting that the retrieved user instance is null
+        assertNull(retrievedUser);
+    }
+    @Test
+    public void testIsLost() {
+        // Create an item with due date more than 15 days ago
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+        RentedItem rentedItem1 = new RentedItem(item, "user1", LocalDate.now().minusDays(16));
+        assertTrue(rentedItem1.isLost()); // Verify that the item is considered lost
+
+        // Create an item with due date less than 15 days ago
+        PhysicalItem item1 = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+        RentedItem rentedItem2 = new RentedItem(item1, "user2", LocalDate.now().minusDays(14));
+        assertTrue(!rentedItem2.isLost()); // Verify that the item is not considered lost
+    }
+
+    @Test
+    public void testGetters() {
+        // Create an item and a rented item
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+        LocalDate dueDate = LocalDate.now().plusDays(7);
+        RentedItem rentedItem = new RentedItem(item, "user1", dueDate);
+
+        // Verify the correctness of getters
+        assertEquals(item, rentedItem.getItem());
+        assertEquals("user1", rentedItem.getUserID());
+        assertEquals(dueDate, rentedItem.getDueDate());
+    }
+    @Test
+    public void testGetters2() {
+        // Create a PhysicalItem instance
+        PhysicalItem item = new PhysicalItem("Book", "location", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category");
+
+        // Create a Textbook instance
+        Textbook textbook = new Textbook(item, "456", 1);
+
+        // Test getters
+        assertEquals(textbook.id, textbook.id);
+        assertEquals("Book", textbook.name);
+        assertEquals("location", textbook.location);
+        assertEquals(ItemType.Book, textbook.type);
+        assertEquals(10.0, textbook.price, 0.001);
+        assertEquals(ItemStatus.Available, textbook.status);
+        assertEquals(ItemPermission.Rentable, textbook.permission);
+        assertEquals("category", textbook.category);
+        assertEquals("456", textbook.groupID);
+        assertEquals(1, textbook.edition);
+    }
+
+    @Test
+    public void testGettersForCourse() {
+        // Create a Faculty instance
+        Faculty user = new Faculty("John Doe", "john@example.com", "password", "student", "123", false);
+
+        // Create a Textbook instance
+        Textbook textbook = new Textbook("456", 1);
+
+        // Create a Course instance
+        LocalDate startDate = LocalDate.of(2024, 9, 1);
+        LocalDate endDate = LocalDate.of(2024, 12, 31);
+        Course course = new Course("789", "Introduction to Java", "101", "Fall 2024", user, textbook, startDate, endDate);
+
+        // Test getters
+        assertEquals("789", course.getId());
+        assertEquals("Introduction to Java", course.getName());
+        assertEquals("101", course.getSection());
+        assertEquals("Fall 2024", course.getTerm());
+        assertEquals(user, course.getFaculty());
+        assertEquals(textbook, course.getTextbook());
+        assertEquals(startDate, course.getStartDate());
+        assertEquals(endDate, course.getEndDate());
+    }
+    @Test
+    public void testProcessPayment_Successful() {
+        // Create an instance of DebitCardPayment
+        DebitCardPayment debitCardPayment = new DebitCardPayment();
+
+        // Call the processPayment method with a positive amount
+        double amount = 100.0;
+        boolean paymentResult = debitCardPayment.processPayment(amount);
+
+        // Assert that the payment was successful
+        assertTrue(paymentResult);
+    }
+    @Test
+    public void testProcessPayment_Successful2() {
+        // Create an instance of DebitCardPayment
+        CreditCardPayment creditCardPayment = new CreditCardPayment();
+
+        // Call the processPayment method with a positive amount
+        double amount = 100.0;
+        boolean paymentResult = creditCardPayment.processPayment(amount);
+
+        // Assert that the payment was successful
+        assertTrue(paymentResult);
+    }
+    @Test
+    public void testProcessPayment_Successful3() {
+        // Create an instance of DebitCardPayment
+        MobileWalletPayment mobileCardPayment = new MobileWalletPayment();
+
+        // Call the processPayment method with a positive amount
+        double amount = 100.0;
+        boolean paymentResult = mobileCardPayment.processPayment(amount);
+
+        // Assert that the payment was successful
+        assertTrue(paymentResult);
+    }
+    @Test
+    public void testGetters3() {
+        // Create an instance of ItemRequest with sample data
+        String itemName = "Sample Item";
+        ItemType itemType = ItemType.Book;
+        String itemID = "123456";
+        String reason = "Sample reason";
+        String additionalInfo = "Additional info";
+        int priority = 1; // Assuming low priority
+        LocalDate requestDate = LocalDate.of(2022, 3, 30);
+
+        ItemRequest itemRequest = new ItemRequest(itemName, itemType, itemID, reason, additionalInfo, priority, requestDate);
+
+        // Test each getter method
+        assertEquals(itemName, itemRequest.getItemName());
+        assertEquals(itemType, itemRequest.getItemType());
+        assertEquals(itemID, itemRequest.getItemID());
+        assertEquals(reason, itemRequest.getReason());
+        assertEquals(additionalInfo, itemRequest.getAdditionalInfo());
+        assertEquals(priority, itemRequest.getPriority());
+        assertEquals(requestDate, itemRequest.getRequestDate());
+    }
+
 }
