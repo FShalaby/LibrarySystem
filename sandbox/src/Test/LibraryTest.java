@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LibraryTest {
     @Test
@@ -496,5 +498,129 @@ public class LibraryTest {
         assertEquals(priority, itemRequest.getPriority());
         assertEquals(requestDate, itemRequest.getRequestDate());
     }
+    @Test
+    public void testGetCoursesAndSetCourses() {
+        // Create faculty
+        Faculty user = new Faculty("John Doe", "john@example.com", "password", "student", "123", false);
 
+        // Create textbook
+        Textbook textbook = new Textbook("456", 1);
+
+        // Create courses
+        Course course1 = new Course("101", "Course 1", "Section 1", "Spring 2024", user, textbook, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 5, 31));
+        Course course2 = new Course("102", "Course 2", "Section 2", "Spring 2024", user, textbook, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 5, 31));
+        Course course3 = new Course("103", "Course 3", "Section 3", "Spring 2024", user, textbook, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 5, 31));
+
+        // Create a list of courses
+        List<Course> courses = new ArrayList<>();
+        courses.add(course1);
+        courses.add(course2);
+        courses.add(course3);
+
+        // Create a student instance
+        Student student = new Student("John Doe", "john@example.com", "password", "student", true);
+
+        // Test initial state (should be empty)
+        assertEquals(0, student.getCourses().size());
+
+        // Set courses for the student
+        student.setCourses(courses);
+
+        // Test getCourses() method
+        assertEquals(courses, student.getCourses());
+    }
+
+    @Test
+    public void testAddAndGetRentedItems() {
+        // Create items for testing
+        PhysicalItem item1 = new PhysicalItem("Book1", "Location1", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category1");
+        PhysicalItem item2 = new PhysicalItem("Book2", "Location2", ItemType.Book, 15.0, ItemStatus.Available, ItemPermission.Rentable, "category2");
+
+        // Create rented items
+        RentedItem rentedItem1 = new RentedItem(item1, "user1", LocalDate.now().plusDays(7));
+        RentedItem rentedItem2 = new RentedItem(item2, "user1", LocalDate.now().plusDays(14));
+
+        // Create a user instance
+        User user = new Student("John Doe", "john@example.com", "password", "student", "123", false);
+
+        // Test initial state (should be empty)
+        assertEquals(0, user.getRentedItems().size());
+
+        // Add rented items
+        user.addRentedItem(rentedItem1);
+        user.addRentedItem(rentedItem2);
+
+        // Test getRentedItems() method
+        List<RentedItem> rentedItems = user.getRentedItems();
+        assertEquals(2, rentedItems.size());
+        assertEquals(rentedItem1, rentedItems.get(0));
+        assertEquals(rentedItem2, rentedItems.get(1));
+
+        // Test setRentedItems() method
+        List<RentedItem> newRentedItems = new ArrayList<>();
+        newRentedItems.add(rentedItem1);
+        newRentedItems.add(rentedItem2);
+        user.setRentedItems(newRentedItems);
+
+        // Test getRentedItems() after setting rented items
+        rentedItems = user.getRentedItems();
+        assertEquals(2, rentedItems.size());
+        assertEquals(rentedItem1, rentedItems.get(0));
+        assertEquals(rentedItem2, rentedItems.get(1));
+    }
+    @Test
+    public void testGetOverdueAndLost() {
+        // Create items for testing
+        PhysicalItem item1 = new PhysicalItem("Book1", "Location1", ItemType.Book, 10.0, ItemStatus.Available, ItemPermission.Rentable, "category1");
+        PhysicalItem item2 = new PhysicalItem("Book2", "Location2", ItemType.Book, 15.0, ItemStatus.Available, ItemPermission.Rentable, "category2");
+
+        // Create rented items
+        RentedItem rentedItem1 = new RentedItem(item1, "user1", LocalDate.now().plusDays(30));
+        RentedItem rentedItem2 = new RentedItem(item2, "user1", LocalDate.now().plusDays(30));
+        RentedItem rentedItem3 = new RentedItem(item2, "user1", LocalDate.now().plusDays(30));
+
+        // Create a user instance
+        Student user = new Student("John Doe", "john@example.com", "password", "student", true);
+
+        // Add rented items
+        user.addRentedItem(rentedItem1);
+        user.addRentedItem(rentedItem2);
+        user.addRentedItem(rentedItem3);
+
+        // Test getOverdue() method
+        assertEquals(0, user.getOverdue());
+
+        // Test getLost() method
+        assertEquals(0, user.getLost());
+    }
+    @Test
+    public void testGetAndSetCourses() {
+        // Create courses for testing
+        Course course1 = new Course("C001", "Mathematics", "MATH101", "Fall 2024", null, null, LocalDate.now(), LocalDate.now().plusMonths(3));
+        Course course2 = new Course("C002", "Physics", "PHYS101", "Fall 2024", null, null, LocalDate.now(), LocalDate.now().plusMonths(3));
+        Course course3 = new Course("C003", "Chemistry", "CHEM101", "Fall 2024", null, null, LocalDate.now(), LocalDate.now().plusMonths(3));
+
+        // Create a student instance
+        Student student = new Student("John Doe", "john@example.com", "password", "student", true);
+
+        // Create a list of courses
+        List<Course> courses = new ArrayList<>();
+        courses.add(course1);
+        courses.add(course2);
+        courses.add(course3);
+
+        // Set courses for the student
+        student.setCourses(courses);
+
+        // Get courses from the student
+        List<Course> retrievedCourses = student.getCourses();
+
+        // Test the size of the retrieved courses list
+        assertEquals(3, retrievedCourses.size());
+
+        // Test individual courses
+        assertEquals(course1, retrievedCourses.get(0));
+        assertEquals(course2, retrievedCourses.get(1));
+        assertEquals(course3, retrievedCourses.get(2));
+    }
 }
