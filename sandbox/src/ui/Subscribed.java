@@ -1,6 +1,7 @@
 package ui;
 
 import sandbox.Database;
+import sandbox.LibrarySystem;
 import sandbox.Newsletter;
 import sandbox.User;
 
@@ -43,7 +44,7 @@ public class Subscribed extends JFrame {
     private void fetchAndDisplayNewsletter() {
         Newsletter news = Database.getNews();
         try {
-            String newsletterContent = Database.fetchNewsletterContent(news.url);
+            String newsletterContent = LibrarySystem.fetchNewsletterContent(news.url);
             contentEditorPane.setText(newsletterContent);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Failed to fetch newsletter content: " + e.getMessage(),
