@@ -356,38 +356,6 @@ public class Database {
   }
 
   /**
-   * Reads the rentals.csv file and returns a list containing all rentals.
-   *
-   * @return A list of maps containing the user's id as the key, and the rented item (<code>Item
-   *     </code>) as the value.
-   */
-  public static List<RentedItem> getAllRentals() {
-    String filename = getRentalsCsvFilename();
-
-    ArrayList<RentedItem> rentals = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        // ignore first line
-        if (line.startsWith("item_id,")) {
-          continue;
-        }
-
-        String[] parts = line.split(",");
-        Item rented = getItem(parts[0]);
-        LocalDate dueDate = LocalDate.parse(parts[2]);
-
-        RentedItem rental = new RentedItem(rented, parts[1], dueDate);
-        rentals.add(rental);
-      }
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-    }
-
-    return rentals;
-  }
-
-  /**
    * Reads the rentals.csv file and returns a list containing items rented by a given user.
    *
    * @param id The renter's ID
@@ -448,28 +416,6 @@ public class Database {
         });
 
     return rentals;
-  }
-
-  /**
-   * Reads the users.csv file and returns a list containing all stored users.
-   *
-   * @return Map<String, String>
-   */
-  public List<User> getAllUsers() {
-    String filename = getUsersCsvFilename();
-
-    ArrayList<User> users = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (line.startsWith("name,")) continue;
-        users.add(userFromCsvLine(line));
-      }
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-    }
-
-    return users;
   }
 
   /**
@@ -548,25 +494,6 @@ public class Database {
     }
 
     return null;
-  }
-
-  public static String fetchNewsletterContent(String urlString) throws IOException {
-    URL url = new URL(urlString);
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setRequestMethod("GET");
-
-    StringBuilder content = new StringBuilder();
-    try (BufferedReader reader =
-        new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        content.append(line);
-      }
-    } finally {
-      connection.disconnect();
-    }
-
-    return content.toString();
   }
 
   public static List<Newsletter> getNewsletters() {
