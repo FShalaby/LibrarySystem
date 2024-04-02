@@ -430,6 +430,10 @@ public class Database {
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
       String line;
       while ((line = reader.readLine()) != null) {
+        if (line.startsWith("name,") || line.isEmpty()) {
+          continue;
+        }
+
         String[] parts = line.split(",");
         if (parts.length >= 5) { // Ensure at least four columns exist
           String email = parts[2].trim(); // Email is in the third column
