@@ -4,3 +4,4 @@ Manager,421b98,manager@yorku.ca,12345678,Manager,true
 verify,687211,verify@yorku.ca,2222,Non-faculty,true
 Professor,6fd709,prof@yorku.ca,12345678,faculty,true
 Visitor,d165df,visitor@yorku.ca,Visitor123@,visitor,true
+t1,t1,t1@yorku.ca,t1t1,student,false
