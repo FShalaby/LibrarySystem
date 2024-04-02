@@ -4,19 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import sandbox.*;
-
-import javax.xml.crypto.Data;
 
 public class DatabaseTest {
   private final Database db = Database.getInstance();
 
   @Test
-  public void testInsertItem() {
+  public void testInsertDeleteItem() {
     Item item =
         new Item(
             "test1234",
@@ -30,12 +28,26 @@ public class DatabaseTest {
             20);
 
     Database.insertItem(item);
+
+    Item dbItem = Database.getItem("test1234");
+    assertNotNull(dbItem);
+    assertEquals("test1234", dbItem.id);
+    assertEquals("test1234", dbItem.name);
+    assertEquals(ItemType.Book, dbItem.type);
+    assertEquals(0.00, dbItem.price, 0.01);
+    assertEquals(ItemStatus.Available, dbItem.status);
+    assertEquals(ItemPermission.RentableAndPurchasable, dbItem.permission);
+    assertEquals("test", dbItem.category);
+    assertEquals(20, dbItem.copies);
+
+    Database.deleteItem("test1234");
+    assertNull(Database.getItem("test1234"));
   }
 
   @Test
-  public void testInsertRental() {
-    String itemID = "test1234";
-    String userID = "325c96";
+  public void testInsertDeleteRental() {
+    String itemID = "9780201633610";
+    String userID = "t1";
     Database.insertRental(itemID, userID);
 
     List<RentedItem> rentedItems = Database.getUserRentals(userID);
@@ -44,6 +56,10 @@ public class DatabaseTest {
     assertNotNull(item.getItem());
     assertEquals(itemID, item.getItem().id);
     assertEquals(LocalDate.now().plusDays(30), item.getDueDate());
+
+    int size = Database.getUserRentals(userID).size();
+    Database.deleteRental(itemID, userID);
+    assertEquals(size - 1, Database.getUserRentals(userID).size());
   }
 
   @Test
@@ -59,10 +75,10 @@ public class DatabaseTest {
 
   @Test
   public void testInsertRequest() {
-    int size = db.getAllRequests().size();
+    int size = Database.getAllRequests().size();
     ItemRequest request = new ItemRequest("test", ItemType.Textbook, "0", "test", "");
     db.insertRequest(request);
-    assertEquals(size + 1, db.getAllRequests().size());
+    assertEquals(size + 1, Database.getAllRequests().size());
   }
 
   @Test
@@ -72,6 +88,18 @@ public class DatabaseTest {
     List<Newsletter> list = Database.getUserSubscription(userID);
     assertFalse(list.isEmpty());
     assertEquals("72c09", list.get(list.size() - 1).id);
+  }
+
+  @Test
+  public void testInsertUser() {
+    db.insertUser("test", "test1234", "test@yorku.ca", "1234", "student", false);
+    User user = Database.getUser("test1234");
+    assertNotNull(user);
+    assertEquals("test", user.name);
+    assertEquals("test1234", user.id);
+    assertEquals("test@yorku.ca", user.email);
+    assertInstanceOf(Student.class, user);
+    assertFalse(user.isVerified);
   }
 
   @Test
@@ -146,13 +174,6 @@ public class DatabaseTest {
       assertNotNull(item);
     }
   }
-  public void testGetAllItems() {
-    List<Item> items = db.getAllItems();
-    assertFalse(items.isEmpty());
-    for (Item item : items) {
-      assertNotNull(item);
-    }
-  }
 
   @Test
   public void testGetItem() {
@@ -195,7 +216,7 @@ public class DatabaseTest {
 
   @Test
   public void testGetAllRequests() {
-    List<ItemRequest> requests = db.getAllRequests();
+    List<ItemRequest> requests = Database.getAllRequests();
     assertFalse(requests.isEmpty());
     for (ItemRequest request : requests) {
       assertNotNull(request);
@@ -206,7 +227,7 @@ public class DatabaseTest {
 
   @Test
   public void testGetAllUsersMap() {
-    Map<String, String> usersMap = db.getAllUsersMap();
+    Map<String, String> usersMap = Database.getAllUsersMap();
     assertFalse(usersMap.isEmpty());
     for (String email : usersMap.keySet()) {
       User user = Database.getUserByEmail(email);
@@ -270,20 +291,20 @@ public class DatabaseTest {
     Newsletter newsletter = Database.getNews();
     assertNotNull(newsletter);
 
-    double expectedFee =10.0;
+    double expectedFee = 10.0;
     String expectedName = "NY-Times";
     String expectedId = "72c09";
     String expectedUrl = "https://www.nytimes.com/ca/";
 
-    assertEquals(expected.fee,newsletter.fee);
-    assertEquals(expected.name,newsletter.name);
-    assertEquals(expected.id,newsletter.id);
-    assertEquals(expected.url,newsletter.url);
+    assertEquals(expectedFee, newsletter.fee, 0.01);
+    assertEquals(expectedName, newsletter.name);
+    assertEquals(expectedId, newsletter.id);
+    assertEquals(expectedUrl, newsletter.url);
   }
 
   @Test
   public void testGetTextbook() {
-    Textbook textbook = db.getTextbook("9780201633610nline");
+    Textbook textbook = Database.getTextbook("9780201633610nline");
     assertNotNull(textbook);
     assertEquals("9780201633610nline", textbook.id);
     assertEquals("online", textbook.location);
@@ -291,101 +312,65 @@ public class DatabaseTest {
 
   @Test
   public void testGetInvalidTextbook() {
-    Textbook textbook = db.getTextbook("N/A");
+    Textbook textbook = Database.getTextbook("N/A");
     assertNull(textbook);
   }
 
   @Test
   public void testGetTextbooksByGroup() {
-    List<Textbook> textbooks = db.getTextbooksByGroup("5616a4c2");
+    List<Textbook> textbooks = Database.getTextbooksByGroup("5616a4c2");
     assertFalse(textbooks.isEmpty());
     for (Textbook textbook : textbooks) {
-       assertNotNull(textbook);
+      assertNotNull(textbook);
     }
   }
 
   @Test
   public void testGetTextbooksByInvalidGroup() {
-    List<Textbook> textbooks = db.getTextbooksByGroup("N/A");
+    List<Textbook> textbooks = Database.getTextbooksByGroup("N/A");
     assertTrue(textbooks.isEmpty());
   }
 
   @Test
-  public void testUpdateUserVerification()
-  {
-    User user = Database.getUser("325c96");
-    Database.updateUserVerification("325c96",true);
-    assertEquals(true,user.isVerified);
+  public void testUpdateUserVerification() {
+    Database.updateUserVerification("t1", true);
+    User user = Database.getUser("t1");
+    assertNotNull(user);
+    assertTrue(user.isVerified);
 
+    Database.updateUserVerification("t1", false);
+    user = Database.getUser("t1");
+    assertNotNull(user);
+    assertFalse(user.isVerified);
   }
 
   @Test
-  public void testUpdateInvalidUserVerification() {}
+  public void testUpdateItemCopies() {
+    String itemID = "9780201633610";
+    int copies = Objects.requireNonNull(Database.getItem(itemID)).copies;
+    Database.updateItemCopies(itemID, 1);
+    assertEquals(copies + 1, Objects.requireNonNull(Database.getItem(itemID)).copies);
 
-  @Test
-  public void testUpdateItemCopiesInc()
-  {
-    Item item = Database.getItem("9780241341650");
-    if(item.copies!=19) {
-      Database.updateItemCopies("9780241341650", 0);
-       item = Database.getItem("9780241341650");
-    }
-    assertEquals(19,item.copies);
+    Database.updateItemCopies(itemID, -1);
+    assertEquals(copies, Objects.requireNonNull(Database.getItem(itemID)).copies);
   }
 
   @Test
-  public void testUpdateItemCopiesDec() {
+  public void testUpdateItemPermission() {
+    String itemID = "9780201633610";
+    ItemPermission permission = Objects.requireNonNull(Database.getItem(itemID)).permission;
+    assertEquals(ItemPermission.Rentable, permission);
 
-    Item item = Database.getItem("9780241341650");
-    if (item.copies != 19) {
-      Database.updateItemCopies("9780241341650", -1);
-      item = Database.getItem("9780241341650");
-    }
+    Database.updateItemPermission(itemID, ItemPermission.Disabled);
+    permission = Objects.requireNonNull(Database.getItem(itemID)).permission;
+    assertEquals(ItemPermission.Disabled, permission);
 
-    assertEquals(19,item.copies);
+    // re-enable
+    permission = Objects.requireNonNull(Database.getItem(itemID)).permission;
+    assertEquals(ItemPermission.Disabled, permission);
+
+    Database.updateItemPermission(itemID, ItemPermission.Rentable);
+    permission = Objects.requireNonNull(Database.getItem(itemID)).permission;
+    assertEquals(ItemPermission.Rentable, permission);
   }
-
-  @Test
-  public void testUpdateInvalidItemCopies() {}
-
-  @Test
-  public void testUpdateItemPermissionDisable()
-  {
-    Database.updateItemPermission("9780241341650", ItemPermission.Disabled);
-    Item item = Database.getItem("9780241341650");
-    assertEquals(ItemPermission.Disabled,item.permission);
-  }
-
-  @Test
-  public void testUpdateItemPermissionEnable()
-  {
-    Database.updateItemPermission("9780241341650", ItemPermission.Rentable);
-    Item item = Database.getItem("9780241341650");
-    assertEquals(ItemPermission.Rentable,item.permission);
-  }
-
-  @Test
-  public void testUpdateInvalidItemPermission() {}
-
-  @Test
-  public void testDeleteItem()
-  {
-    Database.deleteItem("dacda374-6404-432f");
-    Item item = Database.getItem("dacda374-6404-432f");
-    assertNull(item);
-  }
-
-  @Test
-  public void testDeleteInvalidItem() {}
-
-  @Test
-  public void testDeleteRental()
-  {
-    Database.deleteRental("05c83467-739a-450e","111");
-    List<RentedItem> rentals = Database.getUserRentals("111");
-    assertTrue(rentals.isEmpty());
-  }
-
-  @Test
-  public void testDeleteInvalidRental() {}
 }
