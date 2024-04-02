@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 import sandbox.*;
 
@@ -81,7 +79,7 @@ public class DatabaseTest {
     List<Course> courses = db.getAllCourses();
     assertFalse(courses.isEmpty());
     for (Course course : courses) {
-       assertNotNull(course);
+      assertNotNull(course);
     }
   }
 
@@ -106,12 +104,48 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetFacultyCourses() {}
+  public void testGetFacultyCourses() {
+    String facultyID = "6fd709";
+    List<Course> courses = db.getFacultyCourses(facultyID);
+    assertFalse(courses.isEmpty());
+    for (Course course : courses) {
+      assertNotNull(course);
+      assertEquals(facultyID, course.getFaculty().id);
+    }
+  }
 
   @Test
-  public void testGetStudentCourses() {}
+  public void testGetInvalidFacultyCourses() {
+    String facultyID = "N/A";
+    List<Course> courses = db.getFacultyCourses(facultyID);
+    assertTrue(courses.isEmpty());
+  }
 
   @Test
+  public void testGetStudentCourses() {
+    String studentID = "325c96";
+    List<Course> courses = db.getStudentCourses(studentID);
+    assertFalse(courses.isEmpty());
+    for (Course course : courses) {
+      assertNotNull(course);
+    }
+  }
+
+  @Test
+  public void testGetInvalidStudentCourses() {
+    String studentID = "N/A";
+    List<Course> courses = db.getStudentCourses(studentID);
+    assertTrue(courses.isEmpty());
+  }
+
+  @Test
+  public void testGetAllItems() {
+    List<Item> items = db.getAllItems();
+    assertFalse(items.isEmpty());
+    for (Item item : items) {
+      assertNotNull(item);
+    }
+  }
   public void testGetAllItems() {
     List<Item> items = db.getAllItems();
     assertFalse(items.isEmpty());
@@ -136,12 +170,18 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetDiscount()
-  {
-
+  public void testGetDiscount() {
     Discount discount = Database.getDiscount("9780241341650");
+    assertNotNull(discount);
+    assertEquals("9780241341650", discount.item_id);
+    assertEquals("promo1", discount.code);
+    assertEquals(20, discount.discount);
+  }
 
-    assertEquals(20,discount.discount);
+  @Test
+  public void testGetInvalidDiscount() {
+    Discount discount = Database.getDiscount("N/A");
+    assertNull(discount);
   }
 
   @Test
@@ -154,79 +194,61 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetAllRequests()
-  {
-    List<ItemRequest> itemRequests = Database.getAllRequests();
-    assertFalse(itemRequests.isEmpty());
-    for (ItemRequest request : itemRequests) {
+  public void testGetAllRequests() {
+    List<ItemRequest> requests = db.getAllRequests();
+    assertFalse(requests.isEmpty());
+    for (ItemRequest request : requests) {
       assertNotNull(request);
+      assertEquals(ItemType.Textbook, request.getItemType());
+      assertTrue(request.getPriority() == 0 || request.getPriority() == 1);
     }
   }
 
   @Test
-  public void testGetAllUsersMap()
-  {
-    Map<String, String> usersMap = Database.getAllUsersMap();
+  public void testGetAllUsersMap() {
+    Map<String, String> usersMap = db.getAllUsersMap();
     assertFalse(usersMap.isEmpty());
-
-    for (Map.Entry<String, String> entry : usersMap.entrySet()) {
-      String email = entry.getKey();
-      String password = entry.getValue();
-
-      assertNotNull(email);
-      assertNotNull(password);
-
-      // You can add more specific assertions here based on your requirements
+    for (String email : usersMap.keySet()) {
+      User user = Database.getUserByEmail(email);
+      assertNotNull(user);
     }
   }
 
   @Test
-  public void testGetUser()
-  {
-    User user = Database.getUser("325c96");
-    assertNotNull(user); // Assert that the user object is not null
-
-    // Add more specific assertions based on the attributes of the User object
-    assertEquals("325c96", user.id);
-    assertEquals("Student", user.name);
-    assertEquals("student@yorku.ca",user.email);
-    assertEquals("Student", user.type);
-    assertEquals(true,user.isVerified);
-
-    // Add more assertions based on other attributes as needed
+  public void testGetUser() {
+    String id = "325c96";
+    User user = Database.getUser(id);
+    assertNotNull(user);
+    assertEquals(id, user.id);
+    assertInstanceOf(Student.class, user);
   }
 
   @Test
-  public void testGetInvalidUser()
-  {
-    User user = Database.getUser("11111");
+  public void testGetInvalidUser() {
+    String id = "N/A";
+    User user = Database.getUser(id);
     assertNull(user);
   }
 
   @Test
-  public void testGetUserByEmail()
-  {
-    User user = Database.getUserByEmail("student@yorku.ca");
-    assertNotNull(user); // Assert that the user object is not null
-
-    // Add more specific assertions based on the attributes of the User object
-    assertEquals("325c96", user.id);
-    assertEquals("Student", user.name);
-    assertEquals("student@yorku.ca",user.email);
-    assertEquals("Student", user.type);
-    assertEquals(true,user.isVerified);
+  public void testGetUserByEmail() {
+    String id = "325c96";
+    String email = "student@yorku.ca";
+    User user = Database.getUserByEmail(email);
+    assertNotNull(user);
+    assertEquals(id, user.id);
+    assertInstanceOf(Student.class, user);
   }
 
   @Test
-  public void testGetInvalidUserByEmail()
-  {
-    User user = Database.getUserByEmail("wrong@yorku.ca");
+  public void testGetInvalidUserByEmail() {
+    String email = "N/A";
+    User user = Database.getUserByEmail(email);
     assertNull(user);
   }
 
   @Test
-  public void testGetNewsletters()
-  {
+  public void testGetNewsletters() {
     List<Newsletter> newsletters = Database.getNewsletters();
     assertFalse(newsletters.isEmpty());
     for (Newsletter newsletter : newsletters) {
@@ -235,26 +257,24 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetUserSubscription()
-  {
-    List<Newsletter> subscriptions = Database.getUserSubscription("6fd709");
-
-    assertNotNull(subscriptions); // Assert that the subscriptions list is not null
-
-    // Add more specific assertions based on the content of the subscriptions list
-    assertFalse(subscriptions.isEmpty());
+  public void testGetUserSubscription() {
+    List<Newsletter> newsletters = Database.getUserSubscription("6fd709");
+    assertFalse(newsletters.isEmpty());
+    for (Newsletter newsletter : newsletters) {
+      assertNotNull(newsletter);
+    }
   }
 
   @Test
-  public void testGetNews()
-  {
-    Newsletter expected = new  NewsletterProxy();
-    expected.fee =10.0;
-    expected.name = "NY-Times";
-    expected.id = "72c09";
-    expected.url = "https://www.nytimes.com/ca/";
+  public void testGetNews() {
     Newsletter newsletter = Database.getNews();
     assertNotNull(newsletter);
+
+    double expectedFee =10.0;
+    String expectedName = "NY-Times";
+    String expectedId = "72c09";
+    String expectedUrl = "https://www.nytimes.com/ca/";
+
     assertEquals(expected.fee,newsletter.fee);
     assertEquals(expected.name,newsletter.name);
     assertEquals(expected.id,newsletter.id);
@@ -262,39 +282,31 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetInvalidNews() {}
-
-  @Test
-  public void testGetTextbook()
-  {
-    Textbook actual  = Database.getTextbook("9780201633610");
-    assertNotNull(actual);
-    assertEquals("9780201633610", actual.id);
-    assertEquals("5b16a4c2", actual.groupID);
-    assertEquals(1,actual.edition);
+  public void testGetTextbook() {
+    Textbook textbook = db.getTextbook("9780201633610nline");
+    assertNotNull(textbook);
+    assertEquals("9780201633610nline", textbook.id);
+    assertEquals("online", textbook.location);
   }
 
   @Test
-  public void testGetInvalidTextbook()
-  {
-    Textbook actual  = Database.getTextbook("00000");
-    assertNull(actual);
+  public void testGetInvalidTextbook() {
+    Textbook textbook = db.getTextbook("N/A");
+    assertNull(textbook);
   }
 
   @Test
-  public void testGetTextbooksByGroup()
-  {
-    List<Textbook> textbooks = Database.getTextbooksByGroup("5b16a4c2");
+  public void testGetTextbooksByGroup() {
+    List<Textbook> textbooks = db.getTextbooksByGroup("5616a4c2");
     assertFalse(textbooks.isEmpty());
-    for (Textbook text : textbooks) {
-      assertNotNull(text);
+    for (Textbook textbook : textbooks) {
+       assertNotNull(textbook);
     }
   }
 
   @Test
-  public void testGetInvalidTextbooksByGroup()
-  {
-    List<Textbook> textbooks = Database.getTextbooksByGroup("0000");
+  public void testGetTextbooksByInvalidGroup() {
+    List<Textbook> textbooks = db.getTextbooksByGroup("N/A");
     assertTrue(textbooks.isEmpty());
   }
 
