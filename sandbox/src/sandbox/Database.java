@@ -388,7 +388,7 @@ public class Database {
   }
 
   /** TODO */
-  public List<ItemRequest> getAllRequests() {
+  public static List<ItemRequest> getAllRequests() {
     String filename = getRequestsCsvFilename();
 
     ArrayList<ItemRequest> rentals = new ArrayList<>();
@@ -423,7 +423,7 @@ public class Database {
    *
    * @return Map<String, String>
    */
-  public Map<String, String> getAllUsersMap() {
+  public static Map<String, String> getAllUsersMap() {
     String filename = getUsersCsvFilename();
 
     Map<String, String> userMap = new HashMap<>();
@@ -559,7 +559,7 @@ public class Database {
     return null;
   }
 
-  public Textbook getTextbook(String id) {
+  public static Textbook getTextbook(String id) {
     String filename = getTextbookCsvFilename();
 
     try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -579,7 +579,7 @@ public class Database {
     return null;
   }
 
-  public List<Textbook> getTextbooksByGroup(String groupID) {
+  public static List<Textbook> getTextbooksByGroup(String groupID) {
     String filename = getTextbookCsvFilename();
 
     ArrayList<Textbook> textbooks = new ArrayList<>();
@@ -830,7 +830,7 @@ public class Database {
     return path + "/db/students.csv";
   }
 
-  private String getTextbookCsvFilename() {
+  private static String getTextbookCsvFilename() {
     String path = new File("").getAbsolutePath();
     return path + "/db/textbooks.csv";
   }

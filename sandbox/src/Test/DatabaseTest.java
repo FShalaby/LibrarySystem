@@ -1,11 +1,18 @@
 package Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 import sandbox.*;
+
+import javax.xml.crypto.Data;
 
 public class DatabaseTest {
   private final Database db = Database.getInstance();
@@ -105,7 +112,13 @@ public class DatabaseTest {
   public void testGetStudentCourses() {}
 
   @Test
-  public void testGetAllItems() {}
+  public void testGetAllItems() {
+    List<Item> items = db.getAllItems();
+    assertFalse(items.isEmpty());
+    for (Item item : items) {
+      assertNotNull(item);
+    }
+  }
 
   @Test
   public void testGetItem() {
@@ -123,7 +136,13 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetDiscount() {}
+  public void testGetDiscount()
+  {
+
+    Discount discount = Database.getDiscount("9780241341650");
+
+    assertEquals(20,discount.discount);
+  }
 
   @Test
   public void testGetUserRentals() {
@@ -135,79 +154,225 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetAllRequests() {}
+  public void testGetAllRequests()
+  {
+    List<ItemRequest> itemRequests = Database.getAllRequests();
+    assertFalse(itemRequests.isEmpty());
+    for (ItemRequest request : itemRequests) {
+      assertNotNull(request);
+    }
+  }
 
   @Test
-  public void testGetAllUsersMap() {}
+  public void testGetAllUsersMap()
+  {
+    Map<String, String> usersMap = Database.getAllUsersMap();
+    assertFalse(usersMap.isEmpty());
+
+    for (Map.Entry<String, String> entry : usersMap.entrySet()) {
+      String email = entry.getKey();
+      String password = entry.getValue();
+
+      assertNotNull(email);
+      assertNotNull(password);
+
+      // You can add more specific assertions here based on your requirements
+    }
+  }
 
   @Test
-  public void testGetUser() {}
+  public void testGetUser()
+  {
+    User user = Database.getUser("325c96");
+    assertNotNull(user); // Assert that the user object is not null
+
+    // Add more specific assertions based on the attributes of the User object
+    assertEquals("325c96", user.id);
+    assertEquals("Student", user.name);
+    assertEquals("student@yorku.ca",user.email);
+    assertEquals("Student", user.type);
+    assertEquals(true,user.isVerified);
+
+    // Add more assertions based on other attributes as needed
+  }
 
   @Test
-  public void testGetInvalidUser() {}
+  public void testGetInvalidUser()
+  {
+    User user = Database.getUser("11111");
+    assertNull(user);
+  }
 
   @Test
-  public void testGetUserByEmail() {}
+  public void testGetUserByEmail()
+  {
+    User user = Database.getUserByEmail("student@yorku.ca");
+    assertNotNull(user); // Assert that the user object is not null
+
+    // Add more specific assertions based on the attributes of the User object
+    assertEquals("325c96", user.id);
+    assertEquals("Student", user.name);
+    assertEquals("student@yorku.ca",user.email);
+    assertEquals("Student", user.type);
+    assertEquals(true,user.isVerified);
+  }
 
   @Test
-  public void testGetInvalidUserByEmail() {}
+  public void testGetInvalidUserByEmail()
+  {
+    User user = Database.getUserByEmail("wrong@yorku.ca");
+    assertNull(user);
+  }
 
   @Test
-  public void testGetNewsletters() {}
+  public void testGetNewsletters()
+  {
+    List<Newsletter> newsletters = Database.getNewsletters();
+    assertFalse(newsletters.isEmpty());
+    for (Newsletter newsletter : newsletters) {
+      assertNotNull(newsletter);
+    }
+  }
 
   @Test
-  public void testGetUserSubscription() {}
+  public void testGetUserSubscription()
+  {
+    List<Newsletter> subscriptions = Database.getUserSubscription("6fd709");
+
+    assertNotNull(subscriptions); // Assert that the subscriptions list is not null
+
+    // Add more specific assertions based on the content of the subscriptions list
+    assertFalse(subscriptions.isEmpty());
+  }
 
   @Test
-  public void testGetNews() {}
+  public void testGetNews()
+  {
+    Newsletter expected = new  NewsletterProxy();
+    expected.fee =10.0;
+    expected.name = "NY-Times";
+    expected.id = "72c09";
+    expected.url = "https://www.nytimes.com/ca/";
+    Newsletter newsletter = Database.getNews();
+    assertNotNull(newsletter);
+    assertEquals(expected.fee,newsletter.fee);
+    assertEquals(expected.name,newsletter.name);
+    assertEquals(expected.id,newsletter.id);
+    assertEquals(expected.url,newsletter.url);
+  }
 
   @Test
   public void testGetInvalidNews() {}
 
   @Test
-  public void testGetTextbook() {}
+  public void testGetTextbook()
+  {
+    Textbook actual  = Database.getTextbook("9780201633610");
+    assertNotNull(actual);
+    assertEquals("9780201633610", actual.id);
+    assertEquals("5b16a4c2", actual.groupID);
+    assertEquals(1,actual.edition);
+  }
 
   @Test
-  public void testGetInvalidTextbook() {}
+  public void testGetInvalidTextbook()
+  {
+    Textbook actual  = Database.getTextbook("00000");
+    assertNull(actual);
+  }
 
   @Test
-  public void testGetTextbooksByGroup() {}
+  public void testGetTextbooksByGroup()
+  {
+    List<Textbook> textbooks = Database.getTextbooksByGroup("5b16a4c2");
+    assertFalse(textbooks.isEmpty());
+    for (Textbook text : textbooks) {
+      assertNotNull(text);
+    }
+  }
 
   @Test
-  public void testGetInvalidTextbooksByGroup() {}
+  public void testGetInvalidTextbooksByGroup()
+  {
+    List<Textbook> textbooks = Database.getTextbooksByGroup("0000");
+    assertTrue(textbooks.isEmpty());
+  }
 
   @Test
-  public void testUpdateUserVerification() {}
+  public void testUpdateUserVerification()
+  {
+    User user = Database.getUser("325c96");
+    Database.updateUserVerification("325c96",true);
+    assertEquals(true,user.isVerified);
+
+  }
 
   @Test
   public void testUpdateInvalidUserVerification() {}
 
   @Test
-  public void testUpdateItemCopiesInc() {}
+  public void testUpdateItemCopiesInc()
+  {
+    Item item = Database.getItem("9780241341650");
+    if(item.copies!=19) {
+      Database.updateItemCopies("9780241341650", 0);
+       item = Database.getItem("9780241341650");
+    }
+    assertEquals(19,item.copies);
+  }
 
   @Test
-  public void testUpdateItemCopiesDec() {}
+  public void testUpdateItemCopiesDec() {
+
+    Item item = Database.getItem("9780241341650");
+    if (item.copies != 19) {
+      Database.updateItemCopies("9780241341650", -1);
+      item = Database.getItem("9780241341650");
+    }
+
+    assertEquals(19,item.copies);
+  }
 
   @Test
   public void testUpdateInvalidItemCopies() {}
 
   @Test
-  public void testUpdateItemPermissionDisable() {}
+  public void testUpdateItemPermissionDisable()
+  {
+    Database.updateItemPermission("9780241341650", ItemPermission.Disabled);
+    Item item = Database.getItem("9780241341650");
+    assertEquals(ItemPermission.Disabled,item.permission);
+  }
 
   @Test
-  public void testUpdateItemPermissionEnable() {}
+  public void testUpdateItemPermissionEnable()
+  {
+    Database.updateItemPermission("9780241341650", ItemPermission.Rentable);
+    Item item = Database.getItem("9780241341650");
+    assertEquals(ItemPermission.Rentable,item.permission);
+  }
 
   @Test
   public void testUpdateInvalidItemPermission() {}
 
   @Test
-  public void testDeleteItem() {}
+  public void testDeleteItem()
+  {
+    Database.deleteItem("dacda374-6404-432f");
+    Item item = Database.getItem("dacda374-6404-432f");
+    assertNull(item);
+  }
 
   @Test
   public void testDeleteInvalidItem() {}
 
   @Test
-  public void testDeleteRental() {}
+  public void testDeleteRental()
+  {
+    Database.deleteRental("05c83467-739a-450e","111");
+    List<RentedItem> rentals = Database.getUserRentals("111");
+    assertTrue(rentals.isEmpty());
+  }
 
   @Test
   public void testDeleteInvalidRental() {}
