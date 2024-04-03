@@ -1,11 +1,15 @@
 package ui;
 
+import java.awt.*;
+import java.util.Collections;
+import javax.swing.*;
 import sandbox.Database;
+import sandbox.LibraryManager;
 import sandbox.User;
 import sandbox.UserFactory;
 
-import java.awt.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Class that renders a signup dialog. Disposes of itself on close. */
 public class SignupDialog extends JFrame {
@@ -35,7 +39,7 @@ public class SignupDialog extends JFrame {
     String[] userTypes = new String[] {"Student", "Faculty", "Non-Faculty", "Visitor"};
     this.userTypeComboBox = new JComboBox<>(userTypes);
     this.userTypeComboBox.setSize(384, 20);
-    this.userTypeComboBox.setPrototypeDisplayValue("_".repeat(48));
+    this.userTypeComboBox.setPrototypeDisplayValue(String.join("", Collections.nCopies(48, "_")));
 
     // init dialog
     this.setResizable(false);
@@ -87,28 +91,78 @@ public class SignupDialog extends JFrame {
     String email = emailField.getText();
     String pass = new String(passField.getPassword());
     String selectedUserType = (String) userTypeComboBox.getSelectedItem();
-    Database db = Database.getInstance();
     if (selectedUserType == null) {
       JOptionPane.showMessageDialog(this, "Please choose a login type");
       return;
     }
     selectedUserType = selectedUserType.toLowerCase();
 
+    Database db = Database.getInstance();
+
+    // prevent duplicate signup
+    if (db.getUserByEmail(email) != null) {
+      JOptionPane.showMessageDialog(this, "User with email '" + email + "' already exists");
+      return;
+    }
+    
+ // Check password strength
+    List<String> passwordErrors = checkPasswordStrength(pass);
+    if (!passwordErrors.isEmpty()) {
+        StringBuilder errorMessage = new StringBuilder("Password requirements not met:\n");
+        for (String error : passwordErrors) {
+            errorMessage.append("- ").append(error).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, errorMessage.toString());
+        return;
+    }
+
     System.out.println(name + "; " + email + "; " + pass + "; " + selectedUserType);
 
-    //Create a new user based on selected type
-    User newUser = UserFactory.createUser(name, email, pass, selectedUserType);
+    // Create a new user based on selected type
+    User newUser = UserFactory.createUser(name, email, pass, selectedUserType, false);
     newUser.writeUserCsv();
-    if (!newUser.isVerified) {
-      JOptionPane.showMessageDialog(
-          this, "Verification Required. Please wait while we check your information.");
-      return; // Stop signup process
-    }
+
+   if(selectedUserType.toLowerCase() != "visitor")
+   {
+	  JOptionPane.showMessageDialog(this,"Signup Successful! please wait until verified");
+
+   }
 
     db.getAllUsersMap();
     // return to login dialog
     showLoginDialog();
   }
+  private List<String> checkPasswordStrength(String password) {
+	    List<String> errors = new ArrayList<>();
+
+	    // Check if password is at least 8 characters long
+	    if (password.length() < 8) {
+	        errors.add("Password must be at least 8 characters long");
+	    }
+
+	    // Check if password contains at least one uppercase letter
+	    if (!password.matches(".*[A-Z].*")) {
+	        errors.add("Password must contain at least one uppercase letter");
+	    }
+
+	    // Check if password contains at least one lowercase letter
+	    if (!password.matches(".*[a-z].*")) {
+	        errors.add("Password must contain at least one lowercase letter");
+	    }
+
+	    // Check if password contains at least one digit
+	    if (!password.matches(".*\\d.*")) {
+	        errors.add("Password must contain at least one digit");
+	    }
+
+	    // Check if password contains at least one special character
+	    if (!password.matches(".*[@#$%^&+=].*")) {
+	        errors.add("Password must contain at least one special character");
+	    }
+
+	    return errors;
+	}
+
 
   /** Creates and shows login dialog, disposes self */
   private void showLoginDialog() {

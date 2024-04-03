@@ -1,20 +1,26 @@
 package ui;
 
 import java.awt.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import sandbox.CurrentUser;
-import sandbox.User;
+import sandbox.*;
 
 /** The main entrypoint for the GUI. */
 public class MainWindow extends JFrame {
   // constants
-  private static final int WIN_WIDTH = 1024;
-  private static final int WIN_HEIGHT = 640;
+  protected static final int WIN_WIDTH = 1024;
+  protected static final int WIN_HEIGHT = 640;
 
   // attributes
-  private final SearchWindow searchWindow = new SearchWindow();
+  protected SearchWindow searchWindow = new SearchWindow(this);
   protected final User currentUser = CurrentUser.getUserInstance();
+  protected Subscribed subscribedWindow = new Subscribed();
+  List<Newsletter> subscriptions = new ArrayList<Newsletter>();
 
   /** Creates the MainWindow. */
   protected MainWindow() {
@@ -33,6 +39,11 @@ public class MainWindow extends JFrame {
     // add panels
     this.add(createTopPanel(), BorderLayout.NORTH);
     this.add(createCenterPanel(), BorderLayout.CENTER);
+
+    // display alert
+    if (currentUser != null) {
+      showDueAlert();
+    }
   }
 
   public static void main(String[] args) {
@@ -51,6 +62,10 @@ public class MainWindow extends JFrame {
   /** Displays a search window. */
   public void showSearchWindow() {
     this.searchWindow.setVisible(true);
+  }
+
+  public void showSubscribed() {
+    this.subscribedWindow.setVisible(true);
   }
 
   /**
@@ -74,11 +89,38 @@ public class MainWindow extends JFrame {
     greeter.setBorder(new EmptyBorder(5, 0, 5, 0));
     leftPanel.add(greeter);
 
+    if (currentUser != null && (currentUser.getOverdue() > 0 || currentUser.getPenalty() > 0)) {
+      JLabel overdueLabel =
+          new JLabel(
+              String.format(
+                  "$%.2f penalty (%d overdue, %d lost)",
+                  currentUser.getPenalty(), currentUser.getOverdue(), currentUser.getLost()));
+      overdueLabel.setBorder(new EmptyBorder(5, 5, 5, 0));
+      overdueLabel.setForeground(Color.RED);
+      leftPanel.add(overdueLabel);
+    }
+
     // right panel content
     JButton searchButton = new JButton("Search Library");
     searchButton.addActionListener(e -> showSearchWindow());
     rightPanel.add(searchButton);
 
+    if (currentUser != null) {
+      subscriptions = Database.getUserSubscription(currentUser.id);
+      boolean check = false;
+      for (Newsletter i : subscriptions) {
+        if (subscriptions.contains(i)) {
+          check = true;
+          break;
+        }
+      }
+
+      if (check) {
+        JButton viewNews = new JButton("View News");
+        viewNews.addActionListener(e -> showSubscribed());
+        rightPanel.add(viewNews);
+      }
+    }
     JButton logoutButton = new JButton("Logout");
     logoutButton.addActionListener(e -> showLoginDialog());
     rightPanel.add(logoutButton);
@@ -96,14 +138,92 @@ public class MainWindow extends JFrame {
    */
   private JPanel createCenterPanel() {
     JPanel centerPanel = new JPanel();
-    centerPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+    centerPanel.setLayout(new BorderLayout());
     centerPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
     // add content
-    JLabel label = new JLabel("Main Page");
+    if (currentUser != null) {
+      addRentalPanel(centerPanel);
+    }
+    JButton newslettersButton = new JButton("Newsletters");
+    newslettersButton.addActionListener(
+        e -> {
+          // Open the Newsletters window
+          NewslettersWindow newslettersWindow = new NewslettersWindow(this);
+          newslettersWindow.setVisible(true);
+        });
+
+    // Add the button to the main window
+    centerPanel.add(newslettersButton, BorderLayout.SOUTH);
 
     // add panel
-    centerPanel.add(label);
     return centerPanel;
+  }
+
+  private void addRentalPanel(JPanel centerPanel) {
+    JLabel rentedBooksLabel =
+        new JLabel(currentUser.getRentedItems().isEmpty() ? "No Books Rented" : "Rented Books");
+    rentedBooksLabel.setFont(new Font(rentedBooksLabel.getFont().getFontName(), Font.BOLD, 18));
+    centerPanel.add(rentedBooksLabel, BorderLayout.NORTH);
+
+    // rented books panel
+    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+    // Create a border and padding for the rented books section
+    Border border =
+        BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY, Color.LIGHT_GRAY);
+    Border padding = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+    Border compound = BorderFactory.createCompoundBorder(border, padding);
+    leftPanel.setBorder(compound);
+
+    if (currentUser.getRentedItems().isEmpty()) return;
+
+    JPanel cardPanel = new JPanel();
+    for (RentedItem book : currentUser.getRentedItems()) {
+      if (!book.isLost() && !book.getItem().location.equalsIgnoreCase("online")) {
+        JPanel bookPanel = new RentedBookCard(book);
+        cardPanel.add(bookPanel);
+      }
+    }
+    cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+    leftPanel.add(cardPanel);
+    centerPanel.add(leftPanel, BorderLayout.WEST);
+  }
+
+  private void showDueAlert() {
+    StringBuilder upcomingBuilder = new StringBuilder();
+    StringBuilder pastBuilder = new StringBuilder();
+
+    for (RentedItem rental : currentUser.getRentedItems()) {
+      // due today or tomorrow
+      if (rental.getDueDate().isEqual(LocalDate.now())
+          || LocalDate.now().plusDays(1).equals(rental.getDueDate())) {
+        upcomingBuilder.append(rental.getItem().name);
+        upcomingBuilder.append(" due in less than 24 hours\n");
+        continue;
+      }
+
+      // less than 15 days past due
+      if (rental.getDueDate().isBefore(LocalDate.now()) && !rental.isLost()) {
+        pastBuilder.append(rental.getItem().name);
+        pastBuilder.append(" is past the due date\n");
+      }
+    }
+
+    StringBuilder finalBuilder = new StringBuilder();
+    if (!upcomingBuilder.toString().isEmpty()) {
+      finalBuilder.append("Due Soon:\n");
+      finalBuilder.append(upcomingBuilder);
+    }
+
+    if (!pastBuilder.toString().isEmpty()) {
+      finalBuilder.append(finalBuilder.toString().isEmpty() ? "\n\n" : "");
+      finalBuilder.append("Past Due:\n");
+      finalBuilder.append(pastBuilder);
+    }
+
+    if (!finalBuilder.toString().isEmpty()) {
+      JOptionPane.showMessageDialog(this, finalBuilder.toString());
+    }
   }
 }

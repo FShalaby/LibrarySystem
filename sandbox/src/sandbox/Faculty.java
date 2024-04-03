@@ -1,16 +1,35 @@
 package sandbox;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Faculty extends User {
-  ArrayList courses = new ArrayList<Course>();
+  private List<Course> courses = new ArrayList<>();
 
-  public Faculty(String name, String email, String password, String type) {
-
+  public Faculty(String name, String email, String password, String type, boolean verify) {
     this.name = name;
     this.email = email;
     this.pw = password;
     this.type = type;
     this.id = generateRandomID();
+    this.isVerified = verify;
+  }
+
+  public Faculty(
+      String name, String email, String password, String type, String id, boolean verify) {
+    this.name = name;
+    this.email = email;
+    this.pw = password;
+    this.type = type;
+    this.id = id;
+    this.isVerified = verify;
+  }
+
+  public List<Course> getCourses() {
+    return courses;
+  }
+
+  public void setCourses(List<Course> courses) {
+    this.courses = courses;
   }
 }

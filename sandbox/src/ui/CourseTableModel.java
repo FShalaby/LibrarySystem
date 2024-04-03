@@ -1,19 +1,19 @@
 package ui;
 
-import java.util.List;
-import javax.swing.table.AbstractTableModel;
-import sandbox.Item;
-import sandbox.ItemPermission;
+import sandbox.Course;
 
-public class ItemTableModel extends AbstractTableModel {
+import javax.swing.table.AbstractTableModel;
+import java.util.List;
+
+public class CourseTableModel extends AbstractTableModel {
   protected static final String[] headers =
       new String[] {
-        "Name", "Location", "Type", "Price", "Category", "Permission",
+        "Name", "Section", "Term", "Textbook", "Start Date", "End Date",
       };
-  private final List<Item> items;
+  private final List<Course> courses;
 
-  public ItemTableModel(List<Item> items) {
-    this.items = items;
+  public CourseTableModel(List<Course> courses) {
+    this.courses = courses;
   }
 
   /**
@@ -33,23 +33,7 @@ public class ItemTableModel extends AbstractTableModel {
    * @return the Object.class
    */
   public Class<?> getColumnClass(int columnIndex) {
-      switch (columnIndex) {
-          case 0:
-              return items.get(0).name.getClass();
-          case 1:
-              return items.get(0).location.getClass();
-          case 2:
-              return items.get(0).type.getClass();
-          case 3:
-              return String.class;
-          // price
-          case 4:
-              return items.get(0).category.getClass();
-          case 5:
-              return items.get(0).permission.getClass();
-          default:
-              return Object.class;
-      }
+    return String.class;
   }
 
   /**
@@ -62,7 +46,7 @@ public class ItemTableModel extends AbstractTableModel {
    */
   @Override
   public int getRowCount() {
-    return items.size();
+    return courses.size();
   }
 
   /**
@@ -86,23 +70,21 @@ public class ItemTableModel extends AbstractTableModel {
    */
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
-      switch (columnIndex) {
-          case 0:
-              return items.get(rowIndex).name;
-          case 1:
-              return items.get(rowIndex).location;
-          case 2:
-              return items.get(rowIndex).type;
-          case 3:
-              return "$" + items.get(rowIndex).price;
-          case 4:
-              return items.get(rowIndex).category;
-          case 5:
-              return items.get(rowIndex).permission == ItemPermission.RentableAndPurchasable
-                      ? "Rentable/Purchasable"
-                      : items.get(rowIndex).permission;
-          default:
-              return null;
-      }
+    switch (columnIndex) {
+      case 0:
+        return courses.get(rowIndex).getName();
+      case 1:
+        return courses.get(rowIndex).getSection();
+      case 2:
+        return courses.get(rowIndex).getTerm();
+      case 3:
+        return courses.get(rowIndex).getTextbook().name;
+      case 4:
+        return courses.get(rowIndex).getStartDate().toString();
+      case 5:
+        return courses.get(rowIndex).getEndDate().toString();
+      default:
+        return null;
+    }
   }
 }
