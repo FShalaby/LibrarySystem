@@ -1,42 +1,48 @@
 # LibrarySystem 📚
 
-A Java-based Library Management System designed as an academic project with a focus on clean architecture, software design patterns, and structured engineering practices.
+A Java-based Library Management System designed as part of an academic project. This system applies key software engineering concepts including design patterns, UML modeling, and structured architecture.
 
 ## 🚀 Features
 - User registration and authentication
 - Book inventory management (add, update, delete books)
-- Borrowing and returning system with due date tracking
+- Borrowing and returning functionality with due date tracking
 - Data persistence using file-based storage
-- Robust input validation and error handling
+- Error handling and input validation
 
-## 🏗️ Software Design Patterns Applied
-- **Factory Pattern**: For creating objects related to user and book management.
-- **Singleton Pattern**: For database connection management (file-based simulation).
-- **Observer Pattern**: To notify users of overdue books (if applicable).
-- **(Add any other patterns you used here)**
+## 🏗️ Software Design Patterns Used
+- **Factory Pattern**
+- **Abstract Factory Pattern**
+- **Observer Pattern**
+- **Command Pattern**
+- **Strategy Pattern**
+- **Proxy Pattern**
+- **Visitor Pattern**
 
-## 📐 Design Documentation
-Find all design diagrams inside the `/diagrams` folder:
-- ✅ Class Diagram
-- ✅ Activity Diagram
-- ✅ Sequence Diagram
-- ✅ Use Case Diagram (if available)
+> These patterns were applied to ensure scalability, maintainability, and clean separation of concerns within the system.
 
-## 📄 System Architecture Overview
-> Explain briefly the flow of your system:  
-> Example: "The system follows a layered architecture where the Controller handles user input, Services handle business logic, and Models represent data entities."
+## 🖼️ Design Documentation
+
+### Class Diagram
+![Class Diagram](diagrams/Class%20Diagram.jpg)
+
+### Use Case Diagram
+![Use Case Diagram](diagrams/UseCase%20Diagram.jpg)
+
+### Activity Diagram
+![Activity Diagram](diagrams/Activity%20Diagram.jpg)
+
+### Sequence Diagrams
+![Sequence Diagrams](diagrams/Sequence%20Diagrams.jpg)
 
 ## 🧪 Testing
-> (If you wrote tests, explain here)  
-> Example: "JUnit test cases were written for core services including UserService and BookService to ensure proper functionality and easy maintenance."
+JUnit test cases written for core service components such as user management, book inventory, and borrowing functionality, ensuring proper system behavior and reliability.
 
 ## 🛠️ Technologies Used
 - Java
 - Object-Oriented Programming (OOP)
-- Software Design Patterns (Factory, Singleton, Observer)
-- File-based data persistence
-- UML modeling
+- Software Design Patterns (Factory, Abstract Factory, Observer, Command, Strategy, Proxy, Visitor)
+- UML (Class, Sequence, Activity, Use Case)
+- File-based persistence for data storage
 
 ## 👤 Author
 - Fouad Shalaby
-
